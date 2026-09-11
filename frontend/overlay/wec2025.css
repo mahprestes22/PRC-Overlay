@@ -1,0 +1,6308 @@
+/* 
+   THEME: WEC 2025
+   Ported from wec-overlay/style.css
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Rajdhani:wght@300;400;500;600;700;900&family=Outfit:wght@100..900&display=swap');
+
+body[class*="WEC"] {
+    --bg-dark-wec: rgba(40, 48, 86, 0.5);
+    /* Fundo geral */
+    --bg-row-wec: rgba(8, 0, 52, 0.8);
+    /* Fundo das linhas */
+    --border-blue-wec: #00B9FF;
+    --wec-yellow: #FFD700;
+    --hypercar-red: #E10600;
+    --lmgt3-green: #00A550;
+    --text-white: #FFFFFF;
+    --text-gray: #CCCCCC;
+}
+
+body[class*="WEC"],
+body[class*="WEC"] * {
+    box-sizing: border-box;
+}
+
+body[class*="WEC"] {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* Hide ALL standard widgets when WEC is active to ensure zero leakage */
+body[class*="WEC"] #session-info-container,
+body[class*="WEC"] #standings-tower-container,
+body[class*="WEC"] #fcy-banner,
+body[class*="WEC"] #driver-box-container,
+body[class*="WEC"] #onboard-container,
+body[class*="WEC"] #qualify-box-container,
+body[class*="WEC"] #one-vs-one-container,
+body[class*="WEC"] #results-container,
+.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Show WEC Specialized Widget (visibility managed by JS, layout by CSS) */
+#wec-tower-container {
+    display: none;
+}
+
+body[class*="WEC"] #wec-tower-container {
+    display: block;
+    transition: opacity 0.5s ease;
+}
+
+#wec-tower-container.hidden,
+body[class*="WEC"] #wec-tower-container.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+
+/* WEC 2025/2026 2D Radar Track Map (Clean & Transparent) */
+#wec-track-map-container {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    width: 380px;
+    height: 340px;
+    z-index: 900;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+#wec-map-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.9));
+}
+
+/* Contorno Azul Padrão WEC (Linha Grossa e Brilhante) */
+.wec-track-bg-path {
+    fill: none;
+    stroke: #00b9ff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 10px rgba(0, 185, 255, 0.95));
+}
+
+/* Traçado Branco da Pista */
+.wec-track-fg-path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Pit Lane */
+.wec-track-pit-path {
+    fill: none;
+    stroke: #0088cc;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.9;
+}
+
+
+
+
+.wec-overlay-container {
+    position: relative;
+    width: 320px;
+    background: rgba(8, 14, 32, 0.97);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 45px rgba(0, 0, 0, 0.85);
+    border: 4px solid transparent;
+    background-image: 
+        linear-gradient(rgba(8, 14, 32, 0.97), rgba(8, 14, 32, 0.97)),
+        linear-gradient(180deg, #021533 0%, #003366 25%, #0088cc 60%, #00b9ff 85%, #00e5ff 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    overflow: hidden;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: background-image 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.wec-overlay-container>*:first-child {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.wec-overlay-container>*:last-child {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+body.state-fcy .wec-overlay-container,
+body.state-yellow-flag .wec-overlay-container {
+    background-image: 
+        linear-gradient(rgba(8, 14, 32, 0.97), rgba(8, 14, 32, 0.97)),
+        linear-gradient(180deg, #4d3300 0%, #805500 25%, #cc9900 60%, #ffcc00 85%, #ffe600 100%) !important;
+    box-shadow: 0 12px 45px rgba(255, 204, 0, 0.45) !important;
+}
+
+body.state-green-flag .wec-overlay-container {
+    background-image: 
+        linear-gradient(rgba(8, 14, 32, 0.97), rgba(8, 14, 32, 0.97)),
+        linear-gradient(180deg, #003311 0%, #006622 25%, #00b33c 60%, #00e650 85%, #00ff66 100%) !important;
+    box-shadow: 0 12px 45px rgba(0, 255, 102, 0.4) !important;
+}
+
+.wec-top-section {
+    background: linear-gradient(180deg, #010a1c 0%, #02122c 60%, #041938 100%);
+    padding: 10px 0 6px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(0, 185, 255, 0.2);
+}
+
+.wec-brand-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 2px;
+}
+
+.wec-tower-logo {
+    height: 34px;
+    max-width: 160px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    transition: filter 0.4s ease;
+}
+
+body.state-fcy .wec-tower-logo,
+body.state-yellow-flag .wec-tower-logo {
+    filter: brightness(0) saturate(100%) invert(86%) sepia(61%) saturate(1917%) hue-rotate(357deg) brightness(104%) contrast(105%) !important;
+}
+
+body.state-green-flag .wec-tower-logo {
+    filter: brightness(0) saturate(100%) invert(56%) sepia(90%) saturate(2100%) hue-rotate(95deg) brightness(110%) contrast(105%) !important;
+}
+
+.wec-header {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.wec-timer {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-weight: 800;
+    font-style: italic;
+    font-size: 1.35rem;
+    color: #ffffff;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Categories Body/Headers */
+.wec-category-header {
+    font-weight: 900;
+    padding: 6px 15px;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px 0 0 0;
+    box-shadow: inset 0 20px 20px -10px rgba(255, 255, 255, 0.2);
+    transition: background 0.5s ease;
+    border-top: 2px solid rgba(255, 255, 255, 0.15);
+    border-left: 2px solid rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* WEC Watermark (Refined) */
+.wec-category-header::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 150%;
+    transform: translateY(-50%);
+    width: 300px;
+    height: 150px;
+    background-image: url('../media/logos/wec_wec.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    filter: brightness(0);
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+
+/* ── Header Ticker (Classe ↔ Modo da Torre) ────────────────────────────── */
+
+/* Class name: visible 0-46% (~6.9s), exits right 46-50% (1.2s), hidden 50-96%, enters from left 96-100% (1.2s) */
+@keyframes wecTickerClass {
+    0%    { transform: translateX(0);     opacity: 1; }
+    46%   { transform: translateX(0);     opacity: 1; }
+    50%   { transform: translateX(110%);  opacity: 0; }
+    51%   { transform: translateX(-110%); opacity: 0; }
+    96%   { transform: translateX(-110%); opacity: 0; }
+    100%  { transform: translateX(0);     opacity: 1; }
+}
+
+/* Mode label: hidden 0-50%, enters from left 50-54% (1.2s), visible 54-96%, exits right 96-100% (1.2s) */
+@keyframes wecTickerMode {
+    0%    { transform: translateX(-110%); opacity: 0; }
+    50%   { transform: translateX(-110%); opacity: 0; }
+    54%   { transform: translateX(0);     opacity: 1; }
+    96%   { transform: translateX(0);     opacity: 1; }
+    100%  { transform: translateX(110%);  opacity: 0; }
+}
+
+.wec-ticker-class,
+.wec-ticker-mode {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    color: white;
+    will-change: transform, opacity;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.wec-ticker-class {
+    animation: wecTickerClass 30s linear infinite;
+}
+
+.wec-ticker-mode {
+    animation: wecTickerMode 30s linear infinite;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    opacity: 0.92;
+}
+
+/* Class Specific Colors (Premium Gradients) */
+.wec-cat-hypercar .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #990000 0%, #e10600 50%, #800000 100%) !important;
+}
+
+.wec-cat-lmgt3 .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, var(--color-lmgt3) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.wec-cat-lmp2 .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #5ba4ff 0%, #7FB5FF 50%, rgba(0, 0, 0, 0.4) 100%) !important;
+}
+
+.wec-cat-lmp2-elms .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #0033aa 0%, #005696 50%, rgba(0, 0, 0, 0.4) 100%) !important;
+}
+
+.wec-cat-gte .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, var(--color-gte) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.wec-cat-lmp3 .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, var(--color-lmp3) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+body.state-fcy .wec-category-header,
+.wec-category-header.flag-yellow {
+    background: linear-gradient(90deg, #cc8800 0%, #ffcc00 50%, #cc8800 100%) !important;
+    color: #000 !important;
+    animation: pulse-yellow 1.5s ease-in-out infinite;
+}
+
+.wec-category-header.flag-green {
+    background: linear-gradient(90deg, #006622 0%, #00cc44 50%, #006622 100%) !important;
+    color: #ffffff !important;
+    animation: pulse-green 1.5s ease-in-out infinite;
+}
+
+.wec-category-header.flag-finish,
+.wec-category .wec-category-header.flag-finish,
+.wec-cat-hypercar .wec-category-header.flag-finish,
+.wec-cat-lmp2 .wec-category-header.flag-finish,
+.wec-cat-lmp2-elms .wec-category-header.flag-finish,
+.wec-cat-lmp3 .wec-category-header.flag-finish,
+.wec-cat-lmgt3 .wec-category-header.flag-finish,
+.wec-cat-gte .wec-category-header.flag-finish {
+    background: #ffffff !important;
+    background-image: 
+        linear-gradient(45deg, #000000 25%, transparent 25%, transparent 75%, #000000 75%, #000000),
+        linear-gradient(45deg, #000000 25%, transparent 25%, transparent 75%, #000000 75%, #000000) !important;
+    background-size: 16px 16px !important;
+    background-position: 0 0, 8px 8px !important;
+    border-top: 2px solid #ffffff !important;
+    border-left: 2px solid #ffffff !important;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+.wec-category-header.flag-finish::before {
+    display: none !important;
+}
+
+.wec-category-header.flag-finish .wec-class-title,
+.wec-category-header.flag-finish .wec-badge-wrapper {
+    display: none !important;
+}
+
+.wec-finish-flag-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.wec-checkered-flag-svg {
+    display: block;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+}
+
+@keyframes pulse-yellow {
+    0%, 100% { background: linear-gradient(90deg, #cc8800 0%, #ffcc00 50%, #cc8800 100%); }
+    50%       { background: linear-gradient(90deg, #ffcc00 0%, #ffe066 50%, #ffcc00 100%); }
+}
+
+@keyframes pulse-green {
+    0%, 100% { background: linear-gradient(90deg, #006622 0%, #00cc44 50%, #006622 100%); }
+    50%       { background: linear-gradient(90deg, #00cc44 0%, #00ff66 50%, #00cc44 100%); }
+}
+
+/* Badge Animation Structure */
+.wec-badge-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.wec-badge-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 2.2s cubic-bezier(0.23, 1, 0.32, 1);
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 900;
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.wec-badge-text.class {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.wec-badge-text.race,
+.wec-badge-text.fcy,
+.wec-badge-text.green {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.show-race .wec-badge-text.class {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.show-race .wec-badge-text.race {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* FCY State: Force FCY text and hide others */
+body.state-fcy .wec-badge-text.fcy {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+}
+
+body.state-fcy .wec-badge-text.class,
+body.state-fcy .wec-badge-text.race,
+body.state-fcy .wec-badge-text.green {
+    transform: translateX(100%) !important;
+    opacity: 0 !important;
+}
+
+/* Session Finished State */
+body.state-session-finished .wec-badge-text.finish {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+}
+
+body.state-session-finished .wec-badge-text.class,
+body.state-session-finished .wec-badge-text.race,
+body.state-session-finished .wec-badge-text.fcy,
+body.state-session-finished .wec-badge-text.green {
+    transform: translateX(100%) !important;
+    opacity: 0 !important;
+}
+
+.wec-finish-banner {
+    height: 40px;
+    width: 100%;
+    margin-bottom: 2px;
+    background-color: #fff;
+    background-image:
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000),
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+body.state-green-flag .wec-category-header {
+    background: #008000 !important;
+    /* Solid green for all headers during state */
+    border-top: 2px solid #00ff00;
+    border-left: 2px solid #00ff00;
+    box-shadow: none;
+}
+
+/* Badge text logic for GREEN FLAG */
+.wec-category-header.show-green .wec-badge-text.green {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+}
+
+.wec-category-header.show-green .wec-badge-text.class,
+.wec-category-header.show-green .wec-badge-text.race,
+.wec-category-header.show-green .wec-badge-text.fcy {
+    transform: translateX(100%) !important;
+    opacity: 0 !important;
+}
+
+/* Rows */
+.wec-row {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    /* Standardized to 0 to prevent leaking */
+    border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-row-wec);
+    height: 36px;
+    position: relative;
+    /* Added for absolute children positioning */
+    transition: background 0.4s ease;
+}
+
+
+.wec-row.improvement-pb {
+    background: linear-gradient(90deg, rgba(0, 165, 80, 0.3) 0%, var(--bg-row-wec) 100%) !important;
+    box-shadow: inset 4px 0 0 #00A550 !important;
+    z-index: 10;
+}
+
+/* WEC Tower 1v1 Highlights */
+.wec-row.h2h-highlight {
+    background: var(--man-color) !important;
+    color: #fff !important;
+}
+
+.wec-row.h2h-highlight .wec-data-column {
+    background: transparent !important;
+}
+
+
+
+.wec-row.improvement-cb {
+    background: linear-gradient(90deg, rgba(148, 0, 211, 0.3) 0%, var(--bg-row-wec) 100%) !important;
+    box-shadow: inset 4px 0 0 #9400D3 !important;
+    z-index: 10;
+}
+
+/* WEC Tower Race Mode Flashes (Manufacturer Color) */
+.session-RACE #wec-leaderboard .wec-row.improvement-pb,
+.session-RACE #wec-leaderboard .wec-row.improvement-cb {
+    background: var(--man-color) !important;
+    box-shadow: inset 4px 0 0 var(--man-color) !important;
+    color: #fff !important;
+}
+
+.session-RACE #wec-leaderboard .wec-row.improvement-pb .wec-data-column,
+.session-RACE #wec-leaderboard .wec-row.improvement-cb .wec-data-column {
+    background: transparent !important;
+}
+
+
+
+.wec-rank {
+    width: 30px;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--text-white);
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.wec-team-logo {
+    width: 45px;
+    height: 32px;
+    /* Match row height */
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: -2px;
+    /* Slight shift to the right */
+}
+
+.wec-team-logo img {
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.wec-car-number {
+    width: 40px;
+    height: 36px;
+    /* Match row height */
+    background: transparent;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.9rem;
+    border-left: none;
+    border-right: none;
+    z-index: 2;
+}
+
+.wec-driver-abbr {
+    width: 60px;
+    padding-left: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text-white);
+    transition: all 0.3s ease;
+}
+
+body.tower-mode-NAME .wec-driver-abbr {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+body.tower-mode-NAME .wec-data-column {
+    font-size: 0.75rem;
+    background: transparent !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    justify-content: flex-start;
+}
+
+body.tower-mode-NAME .wec-data-content {
+    justify-content: flex-start;
+    padding-left: 8px;
+}
+
+.wec-data-column {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    /* Match row height */
+    background: rgba(255, 255, 255, 0.25);
+    border-left: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.wec-data-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0 10px;
+    transition: padding 0.3s ease;
+}
+
+.wec-data-content-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding-left: 12px;
+    line-height: 1.1;
+}
+
+.wec-data-content-name .name {
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+
+.wec-data-content-name .team {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--wec-yellow);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.wec-data-content.has-indicator {
+    padding-right: 35px;
+    /* Adjust padding to avoid overlap with P or Flag */
+}
+
+.progress-val.gain {
+    color: #00ff00;
+    /* Vibrant green for gain */
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.4);
+}
+
+.progress-val.loss {
+    color: #ff4444;
+    /* Vibrant red for loss */
+    text-shadow: 0 0 5px rgba(255, 68, 68, 0.4);
+}
+
+.progress-val {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* WEC Pit Indicator */
+.wec-pit-indicator {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #fff;
+    line-height: 1;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 5;
+    padding-top: 1px;
+    /* Visual centering for italic P */
+    padding-right: 1px;
+}
+
+.wec-finish-indicator {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    z-index: 5;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+.wec-pit-indicator.pit-flashing {
+    animation: wecPitFlash 0.5s infinite alternate;
+}
+
+@keyframes wecPitFlash {
+    0% {
+        opacity: 0.2;
+        transform: translateY(-50%) scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.1);
+    }
+}
+
+/* WEC Specialized Columns */
+.wec-energy-tank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.wec-energy-bars {
+    display: flex;
+    gap: 2px;
+}
+
+.wec-energy-bar {
+    width: 6px;
+    height: 12px;
+    border-radius: 1px;
+}
+
+.wec-energy-bar.inactive {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.wec-energy-bar.red {
+    background: #ff4444;
+}
+
+.wec-energy-bar.orange {
+    background: #ff8800;
+}
+
+.wec-energy-bar.yellow {
+    background: #ffff00;
+}
+
+.wec-energy-bar.yellow-green {
+    background: #adff2f;
+}
+
+.wec-energy-bar.green {
+    background: #00C851;
+}
+
+.wec-tire-dots {
+    display: grid;
+    grid-template-columns: repeat(2, 14px);
+    gap: 3px;
+    align-items: center;
+    justify-content: center;
+}
+
+.wec-tire-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.wec-tire-s { background: #ffffff; color: #000; } /* Soft - Branco (WEC New) */
+.wec-tire-m { background: #ffbb33; } /* Medium - Amarelo (WEC) */
+.wec-tire-h { background: #ff4444; } /* Hard - Vermelho (WEC New) */
+.wec-tire-w { background: #0099ff; } /* Wet - Azul (WEC) */
+.wec-tire-\? { background: rgba(255,255,255,0.1); color: #666; } /* Empty */
+
+/* Footer */
+.wec-footer {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(90deg, rgba(0, 26, 61, 0.9) 0%, rgba(0, 114, 187, 0.9) 50%, rgba(0, 26, 61, 0.9) 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 185, 255, 0.5);
+}
+
+body.state-fcy .wec-footer {
+    background: linear-gradient(90deg, #FFD700 0%, #B8860B 50%, #FFD700 100%) !important;
+    color: #000;
+    text-shadow: none;
+}
+
+/* Manufacturer Colors */
+.man-alpine {
+    --man-color: #005696;
+}
+
+.man-peugeot {
+    --man-color: #CEFF05;
+}
+
+.man-porsche {
+    --man-color: #ffffff;
+}
+
+.man-cadillac {
+    --man-color: #FFD700;
+}
+
+.man-ferrari {
+    --man-color: #E10600;
+}
+
+.man-toyota {
+    --man-color: #000000;
+}
+
+.man-genesis {
+    --man-color: #000000;
+}
+
+.man-bmw {
+    --man-color: #142E8E;
+}
+
+.man-lamborghini {
+    --man-color: #8aa12c;
+}
+
+.man-aston {
+    --man-color: #00665E;
+}
+
+.man-vanwall {
+    --man-color: #000000;
+}
+
+.man-isotta {
+    --man-color: #8D191D;
+}
+
+.man-ford {
+    --man-color: #003399;
+}
+
+.man-chevrolet,
+.man-corvette {
+    --man-color: #FFD700;
+}
+
+.man-mclaren {
+    --man-color: #FF8000;
+}
+
+.man-lexus {
+    --man-color: #BDBDBD;
+}
+
+.man-mercedes {
+    --man-color: #333333;
+}
+
+.man-oreca {
+    --man-color: #7FB5FF;
+    /* Light blue for LMP2 WEC */
+}
+
+.man-oreca-elms {
+    --man-color: #005696;
+    /* Darker stronger blue for LMP2 ELMS */
+}
+
+.man-ligier {
+    --man-color: #9400D3;
+    /* Vibrant Roxo for LMP3 */
+}
+
+.man-ginetta {
+    --man-color: #9400D3;
+    /* Vibrant Roxo for LMP3 */
+}
+
+.man-glickenhaus {
+    --man-color: #005aff;
+    /* Blue like LMP2 */
+}
+
+/* Apply to logo background */
+.wec-team-logo.man-bg {
+    background-color: var(--man-color) !important;
+}
+
+/* Separator */
+.wec-separator-row {
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.wec-sep-dots {
+    color: var(--text-gray);
+    letter-spacing: 5px;
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+/* Number Band (Palitinho colorido após o número) */
+.wec-number-band {
+    width: 3px;
+    height: 33px;
+    background-color: var(--man-color, #00b9ff) !important;
+    flex-shrink: 0;
+    margin: 0 4px 0 1px;
+    border-radius: 0;
+}
+
+/* Logo Color Rules: no oficial WEC, logos da McLaren e Mercedes usam máscara branca */
+.man-mclaren .wec-team-logo img,
+.wec-team-logo.man-mclaren img,
+.man-mercedes .wec-team-logo img,
+.wec-team-logo.man-mercedes img,
+.logo-white img {
+    filter: brightness(0) invert(1) !important;
+}
+
+.logo-black img {
+    filter: brightness(0) !important;
+}
+
+/* WEC Extra Info (Last Lap / Out Lap) */
+.wec-extra-info-wrap {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    /* Increased from 5px to 8px (+3px) */
+    z-index: 10;
+}
+
+.wec-extra-info {
+    background: rgba(8, 0, 52, 0.9);
+    height: 30px;
+    /* Reduced from 34px */
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: skewX(-15deg);
+    border-left: 3px solid var(--border-blue-wec);
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+    /* Animation removed to prevent flickering with innerHTML updates */
+    min-width: 80px;
+}
+
+.wec-extra-info.no-label {
+    height: 24px;
+}
+
+.wec-extra-label {
+    font-size: 0.55rem;
+    font-weight: 900;
+    color: var(--wec-yellow);
+    transform: skewX(15deg);
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 1px;
+}
+
+.wec-extra-value {
+    font-size: 0.85rem;
+    font-weight: 900;
+    font-style: italic;
+    transform: skewX(15deg);
+    line-height: 1;
+    letter-spacing: 0.5px;
+}
+
+/* Restore colors for Extra Info on highlighted rows (prevent black-on-dark) */
+.wec-row[class*="man-"] .wec-extra-label {
+    color: var(--wec-yellow) !important;
+}
+
+.wec-row[class*="man-"] .wec-extra-value {
+    color: #fff !important;
+}
+
+/* /* --- WEC 1v1 Head-to-Head Specialized Styles --- */
+
+#wec-one-vs-one-container {
+    --wec-h2h-bg-dark: #080D2F;
+    --wec-h2h-bg-center-header: #050621;
+    --wec-h2h-bg-center-body: #2B2F57;
+    --wec-h2h-accent: #E8FF1A;
+    --font-h2h-primary: 'Outfit', sans-serif;
+    --font-h2h-secondary: 'Rajdhani', sans-serif;
+
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%) scale(var(--layout-scale, 1.0));
+    z-index: 1000;
+    width: auto;
+    height: 180px;
+    display: block !important;
+}
+
+#wec-one-vs-one-container.hidden {
+    display: none !important;
+    opacity: 0 !important;
+}
+
+#wec-one-vs-one-container.animate-in {
+    animation: wecH2hSlideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+#wec-one-vs-one-container.animate-out {
+    animation: wecH2hSlideDown 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+#wec-one-vs-one-container.manual-position {
+    transform: scale(var(--layout-scale, 1.0)) !important;
+}
+
+@keyframes wecH2hSlideUp {
+    from {
+        transform: translate(-50%, 150px) scale(var(--layout-scale, 1.0));
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0) scale(var(--layout-scale, 1.0));
+        opacity: 1;
+    }
+}
+
+@keyframes wecH2hSlideDown {
+    from {
+        transform: translate(-50%, 0) scale(var(--layout-scale, 1.0));
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(-50%, 150px) scale(var(--layout-scale, 1.0));
+        opacity: 0;
+    }
+}
+
+.wec-h2h-overlay {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    height: 100%;
+    font-family: var(--font-h2h-primary);
+    color: #fff;
+    padding-bottom: 20px;
+    /* Air at bottom */
+}
+
+.wec-h2h-team {
+    background-color: var(--wec-h2h-bg-dark);
+    height: 110px;
+    /* Reduced to align with center body */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 360px;
+    /* Wider as per screenshot */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-bottom: 0px;
+    /* Flush with bottom of middle piece? */
+}
+
+.wec-h2h-team.left {
+    border-radius: 10px 0 0 10px;
+}
+
+.wec-h2h-team.right {
+    border-radius: 0 10px 10px 0;
+}
+
+.wec-h2h-content {
+    padding: 12px 15px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.wec-h2h-main-info {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.left .wec-h2h-main-info {
+    padding-left: 65px;
+}
+
+.right .wec-h2h-main-info {
+    align-items: flex-end;
+    padding-right: 65px;
+}
+
+.wec-h2h-team-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.right .wec-h2h-team-row {
+    justify-content: flex-end;
+}
+
+.wec-h2h-m-name {
+    font-size: 24px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.right .wec-h2h-m-name,
+.right .wec-h2h-s-name {
+    text-align: right;
+}
+
+.wec-h2h-s-name {
+    font-size: 18px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.wec-h2h-rank {
+    position: absolute;
+    top: 12px;
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    color: #fff;
+    z-index: 10;
+}
+
+.left .wec-h2h-rank {
+    left: 15px;
+}
+
+.right .wec-h2h-rank {
+    right: 15px;
+}
+
+.wec-h2h-rank sup {
+    font-size: 10px;
+    top: -0.5em;
+    font-weight: 600;
+}
+
+.wec-h2h-driver-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    margin-top: 5px;
+}
+
+.right .wec-h2h-driver-row {
+    flex-direction: row-reverse;
+}
+
+.wec-h2h-driver-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 2px;
+}
+
+.right .wec-h2h-driver-info {
+    flex-direction: row-reverse;
+}
+
+/* Removed redundant paddings */
+
+.wec-h2h-driver-name {
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wec-h2h-badge {
+    position: absolute;
+    bottom: 0px;
+    width: 65px;
+    height: 75px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 2px 5px;
+    z-index: 5;
+}
+
+/* Manufacturer Colors for Badges */
+.wec-h2h-badge.man-bg {
+    background-color: var(--man-color) !important;
+}
+
+.left .wec-h2h-badge {
+    left: 0;
+    border-radius: 0 10px 0 10px;
+}
+
+.right .wec-h2h-badge {
+    right: 0;
+    border-radius: 10px 0 10px 0;
+}
+
+.wec-h2h-logo-small {
+    width: 40px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wec-h2h-logo-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.wec-h2h-car-number {
+    font-size: 28px;
+    font-weight: 950;
+    line-height: 0.9;
+    color: #1a1a1a;
+    /* Dark numbers on color background */
+}
+
+/* White numbers for manufacturers with dark backgrounds */
+.man-mercedes .wec-h2h-car-number,
+.man-toyota .wec-h2h-car-number,
+.man-vanwall .wec-h2h-car-number {
+    color: #fff !important;
+}
+
+.wec-h2h-flag {
+    width: 28px;
+    height: auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wec-h2h-middle {
+    width: 280px;
+    min-height: 140px;
+    background-color: var(--wec-h2h-bg-center-body);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+    z-index: 10;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.wec-h2h-header {
+    background-color: var(--wec-h2h-bg-center-header);
+    text-align: center;
+    padding: 6px 0;
+    font-weight: 950;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #fff;
+}
+
+.wec-h2h-body {
+    padding: 10px 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.wec-h2h-delta-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.wec-h2h-delta-val {
+    font-size: 34px;
+    font-weight: 950;
+    color: #fff;
+    font-family: var(--font-h2h-secondary);
+}
+
+.wec-h2h-arrow {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+}
+
+.wec-h2h-laps {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.wec-h2h-lap-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-family: var(--font-h2h-secondary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.wec-h2h-lap-time {
+    color: #fff;
+    text-align: center;
+}
+
+.wec-h2h-lap-label {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.wec-h2h-extra {
+    position: absolute;
+    top: -22px;
+    right: 0;
+    width: auto;
+}
+
+.wec-h2h-rolex {
+    background-color: #006039;
+    color: #A0D11C;
+    font-size: 10px;
+    font-weight: 950;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: 0.5px;
+    padding: 0 8px;
+    border-radius: 4px 4px 0 0;
+}
+
+/* WEC Telemetry Widget */
+#wec-telemetry-container {
+    width: 220px;
+    height: 280px;
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    background-color: var(--man-color, #0072BB);
+    display: flex;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+    overflow: hidden;
+    color: #fff;
+    transition: background-color 0.5s ease;
+    border-radius: 4px 4px 40px 4px;
+    /* Asymmetrical rounding: sharp top, rounded bottom-right */
+}
+
+.wec-telemet-sidebar {
+    width: 14px;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    padding: 2px 0;
+}
+
+.wec-rpm-dots {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+}
+
+.wec-rpm-dot {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background 0.05s ease;
+}
+
+/* RPM Colors based on segment index (0 to 7) */
+.wec-rpm-dot.active:nth-child(1) {
+    background: #00ff00;
+}
+
+/* Bottom */
+.wec-rpm-dot.active:nth-child(2) {
+    background: #00ff00;
+}
+
+.wec-rpm-dot.active:nth-child(3) {
+    background: #00ff00;
+}
+
+.wec-rpm-dot.active:nth-child(4) {
+    background: #ffff00;
+}
+
+.wec-rpm-dot.active:nth-child(5) {
+    background: #ffff00;
+}
+
+.wec-rpm-dot.active:nth-child(6) {
+    background: #ffaa00;
+}
+
+.wec-rpm-dot.active:nth-child(7) {
+    background: #ff3300;
+}
+
+.wec-rpm-dot.active:nth-child(8) {
+    background: #ff00ff;
+}
+
+/* Top - Overrev */
+
+/* Special shift-flash for top segments */
+@keyframes wecShiftFlash {
+    0% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.wec-rpm-dot.active.flash {
+    animation: wecShiftFlash 0.05s infinite alternate;
+}
+
+.wec-telemet-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 15px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.wec-telemet-header {
+    font-size: 13px;
+    font-weight: 950;
+    font-style: italic;
+    letter-spacing: 1.5px;
+    opacity: 0.9;
+    align-self: flex-start;
+    position: relative;
+    padding: 2px 0;
+}
+
+.wec-telemet-header::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -2px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.wec-telemet-speed-row {
+    margin-top: 10px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.wec-telemet-val-main {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 72px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.9;
+}
+
+.wec-telemet-unit {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 950;
+    font-style: italic;
+    margin-left: 2px;
+}
+
+/* Pedals Graph */
+.wec-telemet-pedals-row {
+    width: 100%;
+    height: 14px;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.wec-pedal-bar {
+    flex: 1;
+    height: 100%;
+    position: relative;
+}
+
+.wec-pedal-divider {
+    width: 2px;
+    height: 100%;
+    background: #fff;
+    z-index: 2;
+}
+
+.wec-pedal-fill {
+    height: 100%;
+    transition: width 0.05s ease;
+}
+
+.brake .wec-pedal-fill {
+    background: #ff0000;
+    position: absolute;
+    right: 0;
+    /* Brake fills from center to left */
+}
+
+.throttle .wec-pedal-fill {
+    background: #00ff00;
+}
+
+.wec-telemet-gear-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 4px 0;
+}
+
+.wec-telemet-gear-line {
+    flex: 1;
+    height: 1px;
+    background: #fff;
+    opacity: 0.6;
+    position: relative;
+}
+
+/* Gear line vertical ticks */
+.wec-telemet-gear-line::after {
+    content: '';
+    position: absolute;
+    width: 1.5px;
+    height: 14px;
+    background: #fff;
+    top: -7px;
+}
+
+.wec-telemet-gear-line::before {
+    content: '';
+    position: absolute;
+    width: 1.5px;
+    height: 45px;
+    background: #fff;
+    top: -22px;
+}
+
+.wec-telemet-gear-line.left::after {
+    right: 15px;
+}
+
+.wec-telemet-gear-line.right::after {
+    left: 15px;
+}
+
+.wec-telemet-gear-line.left::before {
+    right: -2px;
+}
+
+.wec-telemet-gear-line.right::before {
+    left: -2px;
+}
+
+.wec-telemet-gear-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 70px;
+    font-weight: 900;
+    font-style: italic;
+    width: 60px;
+    text-align: center;
+    line-height: 0.85;
+}
+
+.wec-telemet-aux-row {
+    opacity: 0.6;
+    margin-top: -5px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.wec-telemet-val-aux {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 1;
+}
+
+.wec-telemet-unit-aux {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 950;
+    font-style: italic;
+    margin-left: 3px;
+}
+
+.wec-energy-footer {
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 5px;
+    position: relative;
+    padding-top: 10px;
+}
+
+/* WEC Tower Qualify Mode overrides */
+.wec-row.wec-qualify-p1-bg {
+    background: rgba(148, 0, 211, 0.95) !important; /* Premium purple for pole position across entire row */
+    box-shadow: inset 4px 0 0 #FF00FF !important;
+    margin-top: 3px !important;
+}
+.wec-row.wec-qualify-p1-bg .wec-data-column {
+    background: transparent !important; /* Let the row's purple show through the data column */
+    box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Restore Driver Initials even if tower is in 'NAME' mode during Qualify */
+body.tower-mode-NAME #wec-leaderboard.qualify-mode-active .wec-driver-abbr {
+    width: 60px !important;
+    padding-left: 10px !important;
+    opacity: 1 !important;
+    overflow: visible;
+}
+
+/* Qualify Sector Indicators Wrapper (Far right of data column) */
+.wec-row-sectors {
+    position: absolute;
+    right: 5px;
+    display: flex;
+    gap: 3px;
+    height: 14px;
+    align-items: center;
+}
+
+/* Individual Sector Dash */
+.wec-sector-dash {
+    width: 3px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 1px;
+}
+
+.wec-sector-dash.cb {
+    background: #FF00FF; /* Class Best / Purple */
+    box-shadow: 0 0 5px rgba(255, 0, 255, 0.8);
+}
+
+.wec-sector-dash.pb {
+    background: #00FF00; /* Personal Best / Green */
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+}
+
+.wec-sector-dash.slower {
+    background: #FFD700; /* Slower / Yellow */
+}
+
+/* Override existing data padding when sectors are present */
+.wec-data-content.has-sectors {
+    padding-right: 25px; /* Give room for the 3 dashes */
+}
+
+.wec-energy-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.wec-energy-label {
+    font-size: 11px;
+    font-weight: 950;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
+}
+
+.wec-energy-val-wrap {
+    display: flex;
+    align-items: flex-end;
+}
+
+.wec-energy-pct {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.8;
+}
+
+.wec-energy-unit {
+    font-size: 16px;
+    font-weight: 950;
+    font-style: italic;
+    margin-left: 2px;
+}
+
+/* Contrast overrides for bright backgrounds */
+/* Contrast overrides for bright backgrounds */
+#wec-telemetry-container.man-peugeot,
+#wec-telemetry-container.man-porsche,
+#wec-telemetry-container.man-cadillac,
+#wec-telemetry-container.man-lamborghini,
+#wec-telemetry-container.man-chevrolet,
+#wec-telemetry-container.man-corvette,
+#wec-telemetry-container.man-lexus,
+#wec-telemetry-container.man-oreca {
+    color: #333 !important;
+}
+
+
+.man-peugeot .wec-telemet-main,
+.man-porsche .wec-telemet-main,
+.man-cadillac .wec-telemet-main,
+.man-lamborghini .wec-telemet-main,
+.man-chevrolet .wec-telemet-main,
+.man-corvette .wec-telemet-main,
+.man-lexus .wec-telemet-main,
+.man-oreca .wec-telemet-main {
+    text-shadow: none !important;
+}
+
+.man-peugeot .wec-telemet-gear-line,
+.man-porsche .wec-telemet-gear-line,
+.man-cadillac .wec-telemet-gear-line,
+.man-lamborghini .wec-telemet-gear-line,
+.man-chevrolet .wec-telemet-gear-line,
+.man-corvette .wec-telemet-gear-line,
+.man-lexus .wec-telemet-gear-line,
+.man-oreca .wec-telemet-gear-line,
+.man-peugeot .wec-telemet-gear-line::after,
+.man-porsche .wec-telemet-gear-line::after,
+.man-cadillac .wec-telemet-gear-line::after,
+.man-lamborghini .wec-telemet-gear-line::after,
+.man-chevrolet .wec-telemet-gear-line::after,
+.man-corvette .wec-telemet-gear-line::after,
+.man-lexus .wec-telemet-gear-line::after,
+.man-oreca .wec-telemet-gear-line::after,
+.man-peugeot .wec-telemet-gear-line::before,
+.man-porsche .wec-telemet-gear-line::before,
+.man-cadillac .wec-telemet-gear-line::before,
+.man-lamborghini .wec-telemet-gear-line::before,
+.man-chevrolet .wec-telemet-gear-line::before,
+.man-corvette .wec-telemet-gear-line::before,
+.man-lexus .wec-telemet-gear-line::before,
+.man-oreca .wec-telemet-gear-line::before,
+.man-peugeot .wec-pedal-divider,
+.man-porsche .wec-pedal-divider,
+.man-cadillac .wec-pedal-divider,
+.man-lamborghini .wec-pedal-divider,
+.man-chevrolet .wec-pedal-divider,
+.man-corvette .wec-pedal-divider,
+.man-lexus .wec-pedal-divider,
+.man-oreca .wec-pedal-divider {
+    background-color: #333 !important;
+}
+
+.man-peugeot .wec-telemet-pedals-row,
+.man-porsche .wec-telemet-pedals-row,
+.man-cadillac .wec-telemet-pedals-row,
+.man-lamborghini .wec-telemet-pedals-row,
+.man-chevrolet .wec-telemet-pedals-row,
+.man-corvette .wec-telemet-pedals-row,
+.man-lexus .wec-telemet-pedals-row,
+.man-oreca .wec-telemet-pedals-row {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.man-peugeot .wec-rpm-dot:not(.active),
+.man-porsche .wec-rpm-dot:not(.active),
+.man-cadillac .wec-rpm-dot:not(.active),
+.man-lamborghini .wec-rpm-dot:not(.active),
+.man-chevrolet .wec-rpm-dot:not(.active),
+.man-corvette .wec-rpm-dot:not(.active),
+.man-lexus .wec-rpm-dot:not(.active),
+.man-oreca .wec-rpm-dot:not(.active) {
+    background: rgba(0, 0, 0, 0.15) !important;
+}
+
+.man-peugeot .wec-telemet-unit,
+.man-porsche .wec-telemet-unit,
+.man-cadillac .wec-telemet-unit,
+.man-lamborghini .wec-telemet-unit,
+.man-chevrolet .wec-telemet-unit,
+.man-corvette .wec-telemet-unit,
+.man-lexus .wec-telemet-unit,
+.man-oreca .wec-telemet-unit {
+    color: #444 !important;
+}
+
+
+/* WEC 2025 Driver Box (Horizontal Bar) */
+#wec-driver-box-container {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+    font-family: 'Outfit', sans-serif;
+    transition: none !important;
+}
+
+#wec-driver-box-container.manual-position {
+    transform: scale(var(--layout-scale, 1)) !important;
+}
+
+#wec-driver-box-container.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    transform: translate(-50%, 150px) scale(var(--widget-scale, 1.0)) !important;
+}
+
+#wec-driver-box-container.animate-in {
+    animation: widgetSlideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+#wec-driver-box-container.animate-out {
+    animation: widgetSlideDown 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.wec-driver-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--man-color, #283056);
+    height: 115px;
+    width: auto;
+    min-width: 900px;
+    position: relative;
+    color: #fff;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+    border-radius: 4px;
+    overflow: visible;
+    /* To allow portrait and car skin to float/pop out */
+}
+
+/* Gradients for the bar */
+.wec-driver-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+}
+
+.wec-db-identity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 30px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wec-db-logo {
+    width: 95px;
+    height: 95px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.wec-db-logo img,
+.wec-db-logo svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.wec-db-car-number {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 80px;
+    font-weight: 950;
+    font-style: italic;
+    line-height: 1;
+}
+
+.wec-db-portrait-float {
+    position: absolute;
+    bottom: 0;
+    left: 250px; /* Default anchor after identity section. Dynamically updated by JS. */
+    width: 220px;
+    height: 155px; /* Taller than the bar (115px) to allow pop-out */
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.wec-db-portrait-img {
+    max-width: 130%;
+    max-height: 135%; /* Pops out from the top */
+    object-fit: contain;
+    filter: drop-shadow(5px 5px 20px rgba(0, 0, 0, 0.6));
+    transition: opacity 0.5s ease;
+    /* Mask the bottom to blend if needed, or leave clean */
+}
+
+.wec-db-info-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-left: 220px;
+    padding-top: 8px; /* Shift name and team down away from class badge */
+    padding-right: 20px;
+    flex: 1;
+    text-align: right;
+    /* Space for portrait */
+}
+
+.wec-db-onboard-indicator:not(.hidden) {
+    display: block !important;
+}
+
+
+@keyframes wec-indicator-pulse {
+    0% { opacity: 0.7; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-2px); }
+    100% { opacity: 0.7; transform: translateY(0); }
+}
+
+.wec-db-info-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 5px;
+}
+
+.wec-db-class-badge {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    padding: 2px 15px;
+    border-radius: 2px;
+    font-size: 16px;
+    font-weight: 950;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.wec-badge-hypercar {
+    background-color: #e1001a;
+}
+
+.wec-badge-lmp2 {
+    background-color: #0055a4;
+}
+
+.wec-badge-lmgt3,
+.wec-badge-gt3 {
+    background-color: #008c45;
+}
+
+.wec-badge-lmp3 {
+    background-color: #800080;
+}
+
+.wec-badge-gte {
+    background-color: #ffd700;
+    color: #000 !important;
+    text-shadow: none;
+}
+
+.wec-db-full-name {
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin-bottom: 2px;
+    width: fit-content; /* Critical for dynamic photo positioning */
+    overflow: visible;
+}
+
+.wec-db-team-name {
+    font-size: 20px;
+    font-weight: 700;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.wec-db-onboard-indicator {
+    position: absolute;
+    bottom: -35px; /* 3px gap below the 115px bar */
+    right: 15px;
+    height: 32px;
+    background-color: #0e162d; /* Consistent dark blue for all teams */
+    color: #fff;
+    padding: 0 25px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    border-radius: 4px; /* Fully rounded/badge look */
+    z-index: 1000;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: wec-indicator-pulse 2s infinite ease-in-out;
+}
+
+.wec-db-car-container {
+    position: absolute;
+    bottom: -45px;
+    /* Lowered 10px from -35px */
+    right: -35px;
+    /* Shifted another 20px right */
+    height: 120px;
+    /* Bigger size */
+    width: 380px;
+    /* Bigger size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    /* Above other info elements */
+    pointer-events: none;
+    opacity: 1;
+}
+
+.wec-db-car-container .driver-box-car-img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
+}
+
+/* Manufacturer Color Definitions (Synchronized with Tower) */
+.man-alpine {
+    --man-color: #005696;
+}
+
+.man-peugeot {
+    --man-color: #CEFF05;
+}
+
+.man-porsche {
+    --man-color: #ffffff;
+}
+
+.man-cadillac {
+    --man-color: #FFD700;
+}
+
+.man-ferrari {
+    --man-color: #E10600;
+}
+
+.man-toyota,
+.man-genesis {
+    --man-color: #000000;
+}
+
+.man-bmw {
+    --man-color: #142E8E;
+}
+
+.man-lamborghini {
+    --man-color: #8aa12c;
+}
+
+.man-aston,
+.man-aston-martin {
+    --man-color: #00665e;
+}
+
+.man-ford {
+    --man-color: #003399;
+}
+
+.man-chevrolet,
+.man-corvette {
+    --man-color: #FFD700;
+}
+
+.man-mclaren {
+    --man-color: #ff8000;
+}
+
+.man-lexus {
+    --man-color: #000000;
+}
+
+.man-mercedes {
+    --man-color: #333333;
+}
+
+.man-isotta {
+    --man-color: #8D191D;
+}
+
+.man-vanwall {
+    --man-color: #000000;
+}
+
+.man-oreca {
+    --man-color: #7FB5FF;
+}
+
+.man-oreca-elms {
+    --man-color: #005696;
+}
+
+.man-ligier {
+    --man-color: #9400D3;
+}
+
+.man-ginetta {
+    --man-color: #9400D3;
+}
+
+.man-glickenhaus {
+    --man-color: #005aff;
+}
+
+/* Overrides for bright backgrounds */
+.man-peugeot .wec-driver-bar,
+.man-porsche .wec-driver-bar,
+.man-cadillac .wec-driver-bar,
+.man-lamborghini .wec-driver-bar,
+.man-chevrolet .wec-driver-bar,
+.man-corvette .wec-driver-bar,
+.man-oreca .wec-driver-bar {
+    color: #111 !important;
+}
+
+.man-peugeot .wec-db-identity,
+.man-porsche .wec-db-identity,
+.man-cadillac .wec-db-identity,
+.man-lamborghini .wec-db-identity,
+.man-chevrolet .wec-db-identity,
+.man-corvette .wec-db-identity,
+.man-oreca .wec-db-identity {
+    border-right-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.man-peugeot .wec-db-team-name,
+.man-porsche .wec-db-team-name,
+.man-cadillac .wec-db-team-name,
+.man-lamborghini .wec-db-team-name,
+.man-chevrolet .wec-db-team-name,
+.man-corvette .wec-db-team-name,
+.man-oreca .wec-db-team-name {
+    opacity: 0.9 !important;
+}
+
+/* Ensure Logo contrast in dark backgrounds */
+.man-mercedes .wec-db-logo img,
+.man-mercedes .wec-db-logo svg,
+.man-toyota .wec-db-logo img,
+.man-toyota .wec-db-logo svg,
+.man-vanwall .wec-db-logo img,
+.man-vanwall .wec-db-logo svg,
+.man-mclaren .wec-db-logo img,
+.man-mclaren .wec-db-logo svg,
+.man-lexus .wec-db-logo img,
+.man-lexus .wec-db-logo svg {
+    filter: brightness(0) invert(1);
+}
+
+/* Ensure Logo contrast in bright backgrounds (like Cadillac) */
+.man-cadillac .wec-db-logo img,
+.man-cadillac .wec-db-logo svg {
+    filter: brightness(0);
+}
+
+/* WEC Qualify Box */
+.wec-qualify-list-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    justify-content: center;
+    z-index: 100;
+    transition: none !important;
+}
+
+.wec-qualify-list-container.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    transform: translate(0, 150px) scale(var(--layout-scale, var(--widget-scale, var(--overlay-scale, 1)))) !important;
+}
+
+.wec-qb-cont {
+    position: relative !important; /* Allow flexbox flow */
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: none !important;
+}
+
+.wec-qualify-list-container.animate-in {
+    opacity: 1 !important;
+    animation: widgetSlideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.wec-qualify-list-container.animate-out {
+    animation: widgetSlideDown 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.wec-qb-top-row {
+    background-color: var(--man-color, #1a2244);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+}
+
+.wec-qb-identity {
+    height: 100%;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wec-qb-logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wec-qb-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.wec-qb-number {
+    font-size: 22px;
+}
+
+.wec-qb-driver-name {
+    flex-grow: 1;
+    padding-left: 15px;
+    font-size: 27px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.wec-qb-time-row {
+    background: linear-gradient(180deg, #020a1c 0%, #0e162d 100%);
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wec-qb-live-time {
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 52px; /* Reduced from 64px */
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.wec-qb-sectors-row {
+    background-color: #050814;
+    height: 36px;
+    display: flex;
+    gap: 8px;
+    padding: 4px 12px 8px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wec-qb-sector {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wec-qb-s-label {
+    display: block;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.wec-qb-s-bar {
+    height: 6px;
+    width: 100%; 
+    background-color: rgba(255, 255, 255, 0.1); /* Always visible slot */
+    border-radius: 3px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Color states for labels when active */
+.wec-qb-sector.personal-best .wec-qb-s-label { color: #00ff00 !important; }
+.wec-qb-sector.class-best .wec-qb-s-label { color: #ff00ff !important; }
+.wec-qb-sector.slower .wec-qb-s-label { color: #ffff00 !important; }
+
+.wec-qb-live-time.finish-flash {
+    animation: wec-qb-pulse 2s infinite;
+}
+
+@keyframes wec-qb-pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Colors for sector performance - using !important to ensure visibility */
+.wec-qb-s-bar.personal-best {
+    background-color: #00ff00 !important;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+}
+
+.wec-qb-s-bar.class-best {
+    background-color: #ff00ff !important;
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+}
+
+.wec-qb-s-bar.slower {
+    background-color: #ffff00 !important;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+}
+
+/* Logo inversion for dark backgrounds if needed */
+.man-mercedes .wec-qb-logo img,
+.man-mercedes .wec-qb-logo svg,
+.man-toyota .wec-qb-logo img,
+.man-toyota .wec-qb-logo svg,
+.man-vanwall .wec-qb-logo img,
+.man-vanwall .wec-qb-logo svg,
+.man-lexus .wec-qb-logo img,
+.man-lexus .wec-qb-logo svg,
+.man-mclaren .wec-qb-logo img,
+.man-mclaren .wec-qb-logo svg {
+    filter: brightness(0) invert(1);
+}
+
+/* Text color correction for bright manufacturer colors */
+.man-peugeot .wec-qb-top-row,
+.man-porsche .wec-qb-top-row,
+.man-cadillac .wec-qb-top-row,
+.man-lamborghini .wec-qb-top-row,
+.man-chevrolet .wec-qb-top-row,
+.man-corvette .wec-qb-top-row,
+.man-oreca .wec-qb-top-row {
+    color: #111;
+}
+.man-peugeot .wec-qb-identity,
+.man-porsche .wec-qb-identity,
+.man-cadillac .wec-qb-identity,
+.man-lamborghini .wec-qb-identity,
+.man-chevrolet .wec-qb-identity,
+.man-corvette .wec-qb-identity,
+.man-lexus .wec-qb-identity,
+.man-oreca .wec-qb-identity {
+    border-right-color: rgba(0, 0, 0, 0.2);
+}
+
+/* WEC Track Map */
+.wec-track-map-cont {
+    top: 40px;
+    left: 1600px;
+    width: 280px;
+    height: 280px;
+    background: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+#wec-track-map-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* --- WEC 2025 SESSION RESULTS SCREEN --- */
+
+.wec-results-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(var(--widget-scale, var(--overlay-scale, 1.0)));
+    width: 1750px;
+    min-height: 1010px;
+    background: linear-gradient(180deg, rgba(10, 15, 35, 0.98) 0%, rgba(5, 8, 20, 0.98) 100%);
+    z-index: 9999;
+    padding: 40px 100px;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Outfit', sans-serif;
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(0, 185, 255, 0.2);
+}
+
+.wec-results-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 4px solid var(--border-blue-wec);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.wec-results-session-title {
+    font-size: 58px;
+    font-weight: 900;
+    font-style: italic;
+    color: white;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.wec-results-sponsor {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 200px;
+}
+
+#wec-results-sponsor-logo {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+
+.wec-results-subtitle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.wec-results-class-badge {
+    background: var(--hypercar-red);
+    color: white;
+    padding: 10px 40px;
+    font-size: 42px;
+    font-weight: 900;
+    font-style: italic;
+    transform: skewX(-15deg);
+}
+
+.wec-results-event-name {
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--text-gray);
+    text-transform: uppercase;
+}
+
+.wec-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wec-results-row {
+    display: flex;
+    align-items: center;
+    background: rgba(8, 12, 28, 0.95);
+    height: 65px;
+    position: relative;
+    overflow: visible;
+    margin-bottom: 2px;
+    opacity: 0;
+    animation: wecRowCascade 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+.wec-results-row::before {
+    display: none; /* Removed the previous side bar */
+}
+
+.wec-res-pos {
+    width: 90px;
+    height: 100%;
+    font-size: 34px;
+    font-weight: 900;
+    font-style: italic;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.wec-results-row.p1 .wec-res-pos {
+    color: white; /* Image shows P1 rank text is white, but the MAN block is white */
+}
+
+.wec-res-logo-cell {
+    width: 100px;
+    height: 100%;
+    background: var(--man-color, #283056);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.wec-res-logo-cell img {
+    max-width: 75px;
+    max-height: 45px;
+}
+
+/* White filter for contrast on dark/saturated backgrounds - matches tower */
+.man-mclaren .wec-res-logo-cell img,
+.man-toyota .wec-res-logo-cell img,
+.man-alpine .wec-res-logo-cell img,
+.man-aston .wec-res-logo-cell img,
+.man-mercedes .wec-res-logo-cell img,
+.man-ford .wec-res-logo-cell img,
+.man-isota .wec-res-logo-cell img {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* Black filter for contrast on light backgrounds - matches tower patterns */
+.man-cadillac .wec-res-logo-cell img,
+.man-lexus .wec-res-logo-cell img {
+    filter: brightness(0) !important;
+}
+
+/* No filter for Porsche, Ferrari, BMW, Corvette, Chevrolet - original colors as per tower */
+
+.wec-res-num-cell {
+    width: 100px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 38px;
+    font-weight: 900;
+    font-style: italic;
+    color: white;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.wec-res-accent-bar {
+    width: 6px;
+    height: 100%;
+    background: var(--man-color, #283056);
+}
+
+.wec-res-driver {
+    flex: 1;
+    font-size: 38px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding-left: 25px;
+    letter-spacing: 1px;
+}
+
+.wec-res-class {
+    width: 70px;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-gray);
+    text-align: center;
+}
+
+.wec-res-time {
+    width: 450px;
+    font-size: 40px;
+    font-weight: 800;
+    text-align: right;
+    padding-right: 50px;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.wec-results-row.p1 .wec-res-time {
+    color: var(--wec-yellow);
+}
+
+/* Transitions */
+.wec-results-screen.hidden {
+    display: none !important;
+}
+
+.wec-results-list {
+    min-height: 668px; /* 10 rows * 65px + 9 * 2px spacing */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fastest Lap Row */
+.wec-res-fastest-lap {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, #6c248c 0%, #a32991 100%);
+    height: 70px;
+    margin-top: 15px;
+    padding: 0 40px;
+    border-radius: 4px;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.wec-fastest-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.wec-fastest-time {
+    font-size: 42px;
+    font-weight: 900;
+    font-style: italic;
+    margin-right: 50px;
+    letter-spacing: -1px;
+}
+
+.wec-fastest-driver {
+    font-size: 38px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 40px;
+}
+
+.wec-fastest-info {
+    font-size: 28px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.9);
+    flex: 1;
+    letter-spacing: 0.5px;
+}
+
+.wec-fastest-lap-num {
+    font-size: 32px;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+}
+
+/* Footer Bar */
+.wec-results-footer-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    margin-top: 15px;
+}
+
+.wec-footer-brand {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--border-blue-wec, #00B9FF);
+    text-shadow: 0 0 10px rgba(0, 185, 255, 0.3);
+    white-space: nowrap;
+}
+
+.wec-results-footer-right {
+    display: flex;
+    gap: 60px;
+}
+
+.wec-footer-social {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.wec-icon-social {
+    width: 28px;
+    height: 28px;
+}
+
+@keyframes wecRowCascade {
+    from { 
+        opacity: 0; 
+        transform: translateX(-40px);
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0);
+    }
+}
+
+@keyframes wecResultsFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===================================================
+   WEC 2025 OFICIAL — TEMA AZUL ESCURO & PRETO BROADCAST
+   =================================================== */
+
+.wec-overlay-container {
+    width: 320px;
+    background: rgba(8, 14, 32, 0.97);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 45px rgba(0, 0, 0, 0.85);
+    border: 4px solid transparent;
+    background-image: 
+        linear-gradient(rgba(8, 14, 32, 0.97), rgba(8, 14, 32, 0.97)),
+        linear-gradient(180deg, #021533 0%, #003366 25%, #0088cc 60%, #00b9ff 85%, #00e5ff 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    overflow: hidden;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: background-image 0.4s ease, box-shadow 0.4s ease;
+}
+
+.wec-top-section {
+    background: linear-gradient(180deg, #010a1c 0%, #02122c 60%, #041938 100%);
+    padding: 10px 0 6px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(0, 185, 255, 0.2);
+}
+
+.wec-brand-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 2px;
+}
+
+.wec-logo-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -1px;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(0, 185, 255, 0.7);
+}
+
+.wec-timer {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    margin: 0;
+    padding: 6px 0 8px 0;
+    text-align: center;
+    width: 100%;
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px rgba(0, 185, 255, 0.5);
+}
+
+/* Category Headers */
+.wec-category-header {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 1.2px;
+    color: #ffffff;
+}
+
+.wec-cat-hypercar .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #990000 0%, #e10600 50%, #800000 100%) !important;
+}
+
+.wec-cat-lmp2 .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #4488ff 0%, #7FB5FF 100%) !important;
+}
+
+.wec-cat-lmp2-elms .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #0033aa 0%, #005696 100%) !important;
+}
+
+.wec-cat-lmp3 .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #550088 0%, #8800cc 100%);
+}
+
+.wec-cat-lmgt3 .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #007733 0%, #00b344 100%);
+}
+
+.wec-cat-gte .wec-category-header:not(.flag-finish):not(.flag-yellow):not(.flag-green) {
+    background: linear-gradient(90deg, #cc6600 0%, #ff8800 100%) !important;
+}
+
+/* Linhas dos Carros */
+.wec-row {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    background: rgba(12, 20, 44, 0.92);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 3px solid transparent;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.wec-row.focused-row {
+    background: rgba(0, 80, 180, 0.6) !important;
+    border-left: 3px solid #00B9FF !important;
+}
+
+.wec-row.is-in-garage {
+    opacity: 0.5 !important;
+    background: rgba(6, 10, 24, 0.85) !important;
+    filter: grayscale(30%);
+}
+
+.wec-rank {
+    width: 26px;
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 14px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.wec-team-logo {
+    width: 36px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px;
+}
+
+.wec-team-logo img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.wec-car-number {
+    width: 32px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.wec-driver-abbr {
+    width: 44px;
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 13px;
+    color: #ffffff;
+    text-align: left;
+    padding-left: 2px;
+    letter-spacing: 0.5px;
+}
+
+/* Coluna de Dados / Tempos */
+.wec-data-column {
+    flex: 1;
+    height: 100%;
+    background: rgba(4, 12, 32, 0.88);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+}
+
+.wec-data-content-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 0 8px;
+}
+
+.wec-time-text {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.wec-data-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+}
+
+/* Indicador de Pit (P) */
+.wec-pit-circle {
+    border: 1.5px solid #ffffff;
+    color: #ffffff;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+/* Efeito Piscante Branco no Pit Request */
+.wec-pit-circle.pit-request-blinking {
+    border: 1.5px solid #ffffff !important;
+    color: #ffffff !important;
+    animation: blink-pit-white 0.7s infinite !important;
+}
+
+@keyframes blink-pit-white {
+    0%, 49% {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    50%, 100% {
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+}
+
+
+/* 3 Risquinhos Verticais de Setores */
+.wec-sector-dashes {
+    display: flex;
+    gap: 2.5px;
+    align-items: center;
+}
+
+.sec-bar {
+    width: 3.5px;
+    height: 16px;
+    border-radius: 1px;
+}
+
+.sec-bar.sec-off {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.sec-bar.sec-purple {
+    background: #c800ff !important;
+    box-shadow: 0 0 6px rgba(200, 0, 255, 0.8);
+}
+
+.sec-bar.sec-green {
+    background: #00e650 !important;
+    box-shadow: 0 0 6px rgba(0, 230, 80, 0.8);
+}
+
+.sec-bar.sec-yellow {
+    background: #ffd700 !important;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+
+.wec-footer {
+    background: linear-gradient(90deg, #0033aa 0%, #005aff 100%);
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    font-style: italic;
+    text-align: center;
+    padding: 6px 0;
+    letter-spacing: 1px;
+}
+
+/* ===================================================
+   WEC 2025 OFICIAL 1:1 — DOIS CAMPOS (ESQUERDA + DIREITA)
+   =================================================== */
+
+.wec-overlay-container {
+    width: 320px;
+    background: rgba(8, 14, 32, 0.97);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 45px rgba(0, 0, 0, 0.85);
+    border: 4px solid transparent;
+    background-image: 
+        linear-gradient(rgba(8, 14, 32, 0.97), rgba(8, 14, 32, 0.97)),
+        linear-gradient(180deg, #021533 0%, #003366 25%, #0088cc 60%, #00b9ff 85%, #00e5ff 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    overflow: hidden;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: background-image 0.4s ease, box-shadow 0.4s ease;
+}
+
+.wec-row {
+    display: flex;
+    align-items: stretch;
+    height: 33px;
+    background: rgba(12, 18, 40, 0.95);
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.4);
+    border-left: 3px solid transparent;
+    position: relative;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-left-color 0.2s ease;
+}
+
+.wec-row.focused-row {
+    background: rgba(0, 80, 180, 0.4) !important;
+    border-left: 3px solid #00B9FF !important;
+}
+
+.wec-row-left {
+    display: flex;
+    align-items: center;
+    width: 155px;
+    background: rgba(8, 14, 32, 0.95);
+    padding-left: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+.wec-rank {
+    width: 24px;
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 14px;
+    color: #ffffff;
+    text-align: center;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+/* == Position Change Arrow ================================================ */
+.wec-pos-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0;
+    opacity: 1;
+    text-shadow: 0 0 10px currentColor;
+}
+
+.wec-pos-arrow.up   { color: #22dd55; }
+.wec-pos-arrow.down { color: #ff4422; }
+
+@keyframes rowChangePulse {
+    0%   { box-shadow: inset 0 0 0px 0px transparent; }
+    15%  { box-shadow: inset 3px 0 12px -2px rgba(255,255,100,0.25); }
+    100% { box-shadow: inset 0 0 0px 0px transparent; }
+}
+.wec-row.pos-changing {
+    animation: rowChangePulse 1.5s ease-out forwards;
+}
+
+/* ── Qualify Class Leader (purple row) ──────────────────────────────────── */
+.wec-row.qualy-leader {
+    background: rgba(120, 40, 180, 0.30) !important;
+    border-left: 3px solid #b44fff !important;
+}
+.wec-row.qualy-leader .wec-data-column {
+    background: rgba(100, 20, 160, 0.25) !important;
+}
+.wec-row.qualy-leader .wec-time-text {
+    color: #e0aaff !important;
+    font-weight: 900 !important;
+}
+
+
+
+.wec-team-logo {
+    width: 38px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 3px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease;
+}
+
+.wec-team-logo.man-bg {
+    background-color: var(--man-color, #111) !important;
+}
+
+.wec-team-logo img {
+    max-width: 90%;
+    max-height: 85%;
+    object-fit: contain;
+}
+
+/* White logo mask for dark backgrounds in tower */
+.wec-team-logo.man-mclaren img,
+.wec-team-logo.man-mercedes img,
+.wec-team-logo.man-lexus img {
+    filter: brightness(0) invert(1) !important;
+}
+
+.wec-car-number {
+    width: 30px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 15px;
+    color: #ffffff;
+    text-align: center;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+}
+
+.wec-number-band {
+    width: 3px;
+    height: 33px;
+    background-color: var(--man-color, #00b9ff) !important;
+    flex-shrink: 0;
+    margin: 0 4px 0 1px;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+}
+
+.wec-driver-abbr {
+    flex: 1;
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 14px;
+    color: #ffffff;
+    text-align: left;
+    padding-left: 2px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* CAIXINHA DE DADOS (DIREITA) — PADRÃO AZUL-MARINHO LMP2 PARA A TORRE TODA */
+.wec-data-column {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin-left: 2px;
+    background: rgba(42, 55, 102, 0.85) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 4px 4px 0;
+}
+
+.wec-box-lmp2,
+.wec-box-lmp3,
+.wec-box-lmgt3,
+.wec-box-hypercar {
+    background: rgba(42, 55, 102, 0.85) !important;
+}
+
+.wec-data-content-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 0 8px;
+}
+
+.wec-time-text {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.wec-data-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Indicador de Pit (P) */
+.wec-pit-circle {
+    border: 1.5px solid #ffffff;
+    color: #ffffff;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+/* Piscar Branco do Pit Request */
+.wec-pit-circle.pit-request-blinking {
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+    animation: blink-pit-white 0.7s infinite !important;
+}
+
+
+/* 3 Risquinhos Verticais de Setores */
+.wec-sector-dashes {
+    display: flex;
+    gap: 2.5px;
+    align-items: center;
+}
+
+.sec-bar {
+    width: 3.5px;
+    height: 17px;
+    border-radius: 1px;
+}
+
+.sec-bar.sec-off {
+    background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.sec-bar.sec-purple {
+    background: #d800ff !important;
+    box-shadow: 0 0 8px rgba(216, 0, 255, 0.9) !important;
+}
+
+.sec-bar.sec-green {
+    background: #00e650 !important;
+    box-shadow: 0 0 8px rgba(0, 230, 80, 0.9) !important;
+}
+
+.sec-bar.sec-yellow {
+    background: #ffd700 !important;
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.8) !important;
+}
+
+/* Garagem Apagada */
+.wec-row.is-in-garage {
+    opacity: 0.55 !important;
+    filter: grayscale(30%);
+}
+
+/* Separador ··· entre drivers fixos e janela de foco */
+.wec-row-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wec-row-separator span {
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 4px;
+}
+
+/* ============================================================
+   DRIVER STATS BANNER (OFFICIAL WEC LOWER-THIRD)
+   ============================================================ */
+#driver-stats-banner {
+    position: fixed;
+    bottom: 35px;
+    left: 370px;
+    display: flex;
+
+
+    align-items: center;
+    background: linear-gradient(135deg, #09062b 0%, #0d0b38 60%, #110e47 100%);
+    border-radius: 4px;
+    padding: 10px 16px 10px 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    color: #ffffff;
+    z-index: 999;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    min-height: 120px;
+    box-sizing: border-box;
+}
+
+#driver-stats-banner.hidden {
+    display: none !important;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* 1. Left Column (Rank + Black Box with Logo & Car Number) */
+.dsb-left-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    min-width: 60px;
+}
+
+.dsb-rank {
+    font-size: 32px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    line-height: 1;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.dsb-rank-suffix {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: lowercase;
+    margin-left: 2px;
+    margin-top: 1px;
+}
+
+.dsb-badge-box {
+    background: #000000;
+    width: 58px;
+    height: 54px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 4px 2px;
+    box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.dsb-mfr-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    width: 100%;
+}
+
+.dsb-logo-img {
+    max-width: 28px;
+    max-height: 20px;
+    object-fit: contain;
+}
+
+.dsb-car-num {
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    line-height: 1;
+}
+
+/* Manufacturer Colors for Driver Stats Badge Box */
+.dsb-badge-box.man-ferrari     { background: #e10600 !important; color: #ffffff; }
+.dsb-badge-box.man-toyota      { background: #000000 !important; color: #ffffff; }
+.dsb-badge-box.man-genesis     { background: #000000 !important; color: #ffffff; }
+.dsb-badge-box.man-aston       { background: #00665E !important; color: #ffffff; }
+.dsb-badge-box.man-mclaren     { background: #ff8000 !important; color: #ffffff; }
+.dsb-badge-box.man-porsche     { background: #ffffff !important; color: #111827; }
+.dsb-badge-box.man-porsche .dsb-car-num { color: #111827 !important; text-shadow: none; }
+.dsb-badge-box.man-lexus       { background: #000000 !important; color: #ffffff; }
+.dsb-badge-box.man-alpine      { background: #005696 !important; color: #ffffff; }
+.dsb-badge-box.man-bmw         { background: #142E8E !important; color: #ffffff; }
+.dsb-badge-box.man-cadillac    { background: #ffd700 !important; color: #111827; }
+.dsb-badge-box.man-cadillac .dsb-car-num { color: #111827 !important; text-shadow: none; }
+.dsb-badge-box.man-peugeot     { background: #CEFF05 !important; color: #111827; }
+.dsb-badge-box.man-peugeot .dsb-car-num { color: #111827 !important; text-shadow: none; }
+.dsb-badge-box.man-lamborghini { background: #8aa12c !important; color: #ffffff; }
+.dsb-badge-box.man-corvette,
+.dsb-badge-box.man-chevrolet   { background: #ffd700 !important; color: #111827; }
+.dsb-badge-box.man-corvette .dsb-car-num,
+.dsb-badge-box.man-chevrolet .dsb-car-num { color: #111827 !important; text-shadow: none; }
+.dsb-badge-box.man-oreca       { background: #7FB5FF !important; color: #111827; }
+.dsb-badge-box.man-oreca-elms  { background: #005696 !important; color: #ffffff; }
+.dsb-badge-box.man-ligier,
+.dsb-badge-box.man-duqueine,
+.dsb-badge-box.man-ginetta     { background: #9400D3 !important; color: #ffffff; }
+.dsb-badge-box.man-ford        { background: #003399 !important; color: #ffffff; }
+.dsb-badge-box.man-mercedes    { background: #333333 !important; color: #ffffff; }
+.dsb-badge-box.man-vanwall     { background: #000000 !important; color: #ffffff; }
+.dsb-badge-box.man-isotta      { background: #8d191d !important; color: #ffffff; }
+.dsb-badge-box.man-default     { background: #1a1740 !important; color: #ffffff; }
+
+/* White logo mask for McLaren, Mercedes and Lexus in Driver Stats */
+.dsb-badge-box.man-mclaren .dsb-logo-img,
+.dsb-badge-box.man-mercedes .dsb-logo-img,
+.dsb-badge-box.man-lexus .dsb-logo-img {
+    filter: brightness(0) invert(1) !important;
+}
+
+.dsb-badge-box.man-porsche .dsb-logo-img {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4)) !important;
+}
+
+/* 2. Driver Info (First Name, Last Name, Team) */
+.dsb-driver-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 170px;
+    margin-right: 12px;
+}
+
+.dsb-first-name {
+    font-size: 19px;
+    font-weight: 700;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 0.8px;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.dsb-last-name {
+    font-size: 27px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.dsb-team-name {
+    font-size: 13px;
+    font-weight: 800;
+    font-style: italic;
+    color: #d1d8ec;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* 3. Driver Portrait Photo Cutout */
+.dsb-photo-container {
+    width: 125px;
+    height: 120px;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin-right: 18px;
+    margin-bottom: -12px;
+}
+
+.dsb-driver-photo {
+    max-height: 135px;
+    max-width: 125px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+    transition: opacity 0.3s ease;
+}
+
+
+/* 4. Stats Section */
+.dsb-stats-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 270px;
+}
+
+.dsb-stats-title {
+    font-size: 15px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    text-align: left;
+    margin-bottom: 5px;
+    letter-spacing: 1.2px;
+}
+
+.dsb-stats-table {
+    background: rgba(22, 17, 60, 0.75);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dsb-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    font-style: italic;
+}
+
+.dsb-stat-row:last-child {
+    border-bottom: none;
+}
+
+.dsb-stat-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.8px;
+}
+
+.dsb-stat-val {
+    font-size: 15px;
+    font-weight: 900;
+    color: #ffffff;
+    font-family: 'Rajdhani', monospace, sans-serif;
+    letter-spacing: 0.8px;
+}
+
+/* ============================================================
+   DRIVER ONBOARD TELEMETRY BANNER (OFFICIAL WEC)
+   ============================================================ */
+#driver-onboard-banner {
+    position: fixed;
+    bottom: 35px;
+    left: 370px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    color: #ffffff;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    box-sizing: border-box;
+}
+
+#driver-onboard-banner.hidden {
+    display: none !important;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+
+.dob-main-container {
+    display: flex;
+    align-items: stretch;
+    height: 120px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    border-radius: 4px 4px 0 0;
+    overflow: visible;
+}
+
+/* 1. Left Box: Manufacturer Background Color + Logo + Number + Photo */
+.dob-left-box {
+    display: flex;
+    align-items: center;
+    padding: 0 18px 0 16px;
+    min-width: 290px;
+    position: relative;
+    border-radius: 4px 0 0 0;
+    overflow: visible;
+    transition: background 0.3s ease;
+}
+
+/* Manufacturer Colors (1:1 com a Torre WEC) */
+.dob-left-box.man-ferrari     { background: #e10600; color: #ffffff; }
+.dob-left-box.man-toyota      { background: #000000; color: #ffffff; }
+.dob-left-box.man-genesis     { background: #000000; color: #ffffff; }
+.dob-left-box.man-aston       { background: #00665E; color: #ffffff; }
+.dob-left-box.man-mclaren     { background: #ff8000; color: #ffffff; }
+.dob-left-box.man-porsche     { background: #ffffff; color: #111827; }
+.dob-left-box.man-porsche .dob-car-num { color: #111827 !important; }
+.dob-left-box.man-lexus       { background: #000000; color: #ffffff; }
+.dob-left-box.man-alpine      { background: #005696; color: #ffffff; }
+.dob-left-box.man-bmw         { background: #142E8E; color: #ffffff; }
+.dob-left-box.man-cadillac    { background: #ffd700; color: #111827; }
+.dob-left-box.man-cadillac .dob-car-num { color: #111827 !important; }
+.dob-left-box.man-peugeot     { background: #CEFF05; color: #111827; }
+.dob-left-box.man-peugeot .dob-car-num { color: #111827 !important; }
+.dob-left-box.man-lamborghini { background: #8aa12c; color: #ffffff; }
+.dob-left-box.man-corvette,
+.dob-left-box.man-chevrolet   { background: #ffd700; color: #111827; }
+.dob-left-box.man-corvette .dob-car-num,
+.dob-left-box.man-chevrolet .dob-car-num { color: #111827 !important; }
+.dob-left-box.man-oreca       { background: #7FB5FF; color: #111827; }
+.dob-left-box.man-oreca-elms  { background: #005696; color: #ffffff; }
+.dob-left-box.man-ligier,
+.dob-left-box.man-duqueine,
+.dob-left-box.man-ginetta     { background: #9400D3; color: #ffffff; }
+.dob-left-box.man-ford        { background: #003399; color: #ffffff; }
+.dob-left-box.man-mercedes    { background: #333333; color: #ffffff; }
+.dob-left-box.man-vanwall     { background: #000000; color: #ffffff; }
+.dob-left-box.man-isotta      { background: #8d191d; color: #ffffff; }
+.dob-left-box.man-default     { background: #1a1740; color: #ffffff; }
+
+/* White logo mask for McLaren, Mercedes and Lexus in Driver Onboard */
+.dob-left-box.man-mclaren .dob-mfr-logo img,
+.dob-left-box.man-mercedes .dob-mfr-logo img,
+.dob-left-box.man-lexus .dob-mfr-logo img {
+    filter: brightness(0) invert(1) !important;
+}
+
+.dob-left-box.man-porsche .dob-mfr-logo img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+}
+
+.dob-mfr-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 78px;
+    height: 78px;
+    margin-right: 14px;
+}
+
+.dob-mfr-logo img {
+    max-width: 76px;
+    max-height: 76px;
+    object-fit: contain;
+}
+
+
+
+.dob-car-num {
+    font-size: 58px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-right: 14px;
+}
+
+.dob-photo-container {
+    width: 145px;
+    height: 120px;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.dob-driver-photo {
+    max-height: 172px;
+    max-width: 160px;
+    width: auto;
+    object-fit: contain;
+    position: absolute;
+    bottom: 0;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.88));
+    transition: opacity 0.3s ease;
+}
+
+
+/* 2. Right Box: Dark Telemetry Box */
+.dob-right-box {
+    background: #141138;
+    display: flex;
+    align-items: center;
+    padding: 12px 24px 12px 20px;
+    min-width: 440px;
+    border-radius: 0 4px 0 0;
+    border-left: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.dob-telemetry-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 270px;
+    flex-shrink: 0;
+    margin-right: 20px;
+    height: 100%;
+}
+
+/* Dual Brake (Left Red) / Throttle (Right Green) Bar - Rigorously Symmetric */
+.dob-pedals-wrapper {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.dob-pedals-bar {
+    width: 100%;
+    height: 15px;
+    background: #201b44;
+    border-radius: 2px;
+    display: flex;
+    align-items: stretch;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dob-pedal-half {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+}
+
+.dob-brake-half {
+    justify-content: flex-end;
+}
+
+.dob-throttle-half {
+    justify-content: flex-start;
+}
+
+.dob-pedal-brake {
+    height: 100%;
+    background: #ff1a1a;
+    box-shadow: 0 0 10px rgba(255, 26, 26, 0.9);
+    width: 0%;
+    transition: width 0.03s linear;
+}
+
+.dob-pedal-center-line {
+    width: 2px;
+    background: #ffffff;
+    flex-shrink: 0;
+    z-index: 5;
+    box-shadow: 0 0 4px #ffffff;
+}
+
+.dob-pedal-throttle {
+    height: 100%;
+    background: #00ff22;
+    box-shadow: 0 0 10px rgba(0, 255, 34, 0.9);
+    width: 0%;
+    transition: width 0.03s linear;
+}
+
+/* RPM & Tachometer */
+.dob-rpm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.dob-tacho-ticks {
+    display: flex;
+    align-items: center;
+    gap: 2.5px;
+    height: 16px;
+}
+
+.dob-tick {
+    width: 2.5px;
+    height: 11px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 1px;
+}
+
+.dob-tick.active {
+    background: #ffffff;
+    height: 14px;
+}
+
+.dob-tick.red.active {
+    background: #ff2222;
+    box-shadow: 0 0 6px #ff2222;
+}
+
+.dob-rpm-text {
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Gear Row - Fixed Height & Fixed Item Widths to Eliminate Any Shift */
+.dob-gear-row {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    gap: 8px;
+}
+
+.dob-gear-label {
+    font-size: 14px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.dob-gear-list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+}
+
+.dob-gear-item {
+    width: 20px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    font-style: italic;
+    color: #ffffff;
+    opacity: 0.35;
+    transition: transform 0.08s ease, opacity 0.08s ease;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.dob-gear-item.active {
+    opacity: 1;
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.95);
+    transform: scale(1.05);
+}
+
+
+/* Speed Section - Fixed Width & Tabular Numbers */
+.dob-speed-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    width: 175px;
+    flex-shrink: 0;
+}
+
+.dob-speed-kmh {
+    font-size: 52px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    line-height: 0.92;
+    display: flex;
+    align-items: baseline;
+    font-variant-numeric: tabular-nums;
+}
+
+.dob-kmh-val {
+    font-variant-numeric: tabular-nums;
+    display: inline-block;
+    min-width: 95px;
+    text-align: right;
+}
+
+.dob-speed-unit {
+    font-size: 18px;
+    font-weight: 800;
+    margin-left: 6px;
+    letter-spacing: 0.5px;
+}
+
+.dob-speed-mph {
+    font-size: 18px;
+    font-weight: 800;
+    font-style: italic;
+    color: #d1d5db;
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+}
+
+.dob-mph-val {
+    font-variant-numeric: tabular-nums;
+    display: inline-block;
+    min-width: 35px;
+    text-align: right;
+}
+
+
+/* 3. Bottom Sub-tab: Sponsor / Telemetry */
+.dob-sub-tab {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 0;
+    margin-top: 2px;
+}
+
+.dob-sponsor-badge {
+    background: #0c0926;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 16px;
+    min-width: 90px;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 0 4px;
+}
+
+.dob-sponsor-img {
+    max-height: 18px;
+    max-width: 85px;
+    object-fit: contain;
+    display: none;
+}
+
+.dob-sponsor-default-text {
+    font-size: 11px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 2px;
+}
+
+.dob-telemetry-badge {
+    background: #0d0b2b;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 0 0 4px 0;
+}
+
+.dob-telemetry-badge span {
+    font-size: 12px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 2px;
+}
+
+/* ============================================================
+   OFFICIAL WEC 2025/2026 HEAD-TO-HEAD BATTLE (1v1)
+   ============================================================ */
+#wec-h2h-container {
+    position: fixed;
+    bottom: 35px;
+    left: 370px;
+    z-index: 1000;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.wec-h2h-wrapper {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #09062b 0%, #0d0b38 60%, #110e47 100%);
+    border-radius: 6px;
+    border: 2px solid rgba(0, 185, 255, 0.7);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    overflow: visible;
+}
+
+/* Top Header Bar */
+.wec-h2h-top-bar {
+    height: 28px;
+    background: linear-gradient(90deg, #001f4d 0%, #000814 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 12px;
+    border-radius: 4px 4px 0 0;
+}
+
+.wec-h2h-class-tag {
+    font-size: 11px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    background: #e10600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    z-index: 2;
+}
+
+.wec-h2h-title-tag {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 185, 255, 0.6);
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.wec-h2h-live-tag {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 900;
+    font-style: italic;
+    color: #00ff66;
+    background: rgba(0, 255, 102, 0.15);
+    border: 1px solid rgba(0, 255, 102, 0.4);
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    animation: h2hPulse 1.5s infinite;
+    z-index: 2;
+}
+
+@keyframes h2hPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Main Body with Left Card, Delta Pillar, and Right Card */
+.wec-h2h-main-body {
+    display: flex;
+    align-items: stretch;
+    height: 110px;
+    position: relative;
+}
+
+.wec-h2h-card {
+    display: flex;
+    align-items: center;
+    width: 390px;
+    position: relative;
+    padding: 0 8px;
+}
+
+/* Identity Block (Logo + Number) with Official Manufacturer Colors */
+.wec-h2h-id-block {
+    width: 76px;
+    height: 94px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin: 0 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+}
+
+.wec-h2h-id-block.man-ferrari     { background: #e10600 !important; color: #ffffff; }
+.wec-h2h-id-block.man-toyota      { background: #000000 !important; color: #ffffff; }
+.wec-h2h-id-block.man-genesis     { background: #000000 !important; color: #ffffff; }
+.wec-h2h-id-block.man-porsche     { background: #ffffff !important; color: #111827; }
+.wec-h2h-id-block.man-porsche .wec-h2h-car-num { color: #111827 !important; text-shadow: none; }
+.wec-h2h-id-block.man-aston       { background: #00665E !important; color: #ffffff; }
+.wec-h2h-id-block.man-alpine      { background: #005696 !important; color: #ffffff; }
+.wec-h2h-id-block.man-bmw         { background: #142E8E !important; color: #ffffff; }
+.wec-h2h-id-block.man-mclaren     { background: #ff8000 !important; color: #ffffff; }
+.wec-h2h-id-block.man-peugeot     { background: #CEFF05 !important; color: #111827; }
+.wec-h2h-id-block.man-peugeot .wec-h2h-car-num { color: #111827 !important; text-shadow: none; }
+.wec-h2h-id-block.man-lamborghini { background: #8aa12c !important; color: #ffffff; }
+.wec-h2h-id-block.man-cadillac    { background: #ffd700 !important; color: #111827; }
+.wec-h2h-id-block.man-cadillac .wec-h2h-car-num { color: #111827 !important; text-shadow: none; }
+.wec-h2h-id-block.man-corvette,
+.wec-h2h-id-block.man-chevrolet   { background: #ffd700 !important; color: #111827; }
+.wec-h2h-id-block.man-corvette .wec-h2h-car-num,
+.wec-h2h-id-block.man-chevrolet .wec-h2h-car-num { color: #111827 !important; text-shadow: none; }
+.wec-h2h-id-block.man-oreca       { background: #7FB5FF !important; color: #111827; }
+.wec-h2h-id-block.man-oreca-elms  { background: #005696 !important; color: #ffffff; }
+.wec-h2h-id-block.man-ligier,
+.wec-h2h-id-block.man-duqueine,
+.wec-h2h-id-block.man-ginetta     { background: #9400D3 !important; color: #ffffff; }
+.wec-h2h-id-block.man-lexus       { background: #000000 !important; color: #ffffff; }
+.wec-h2h-id-block.man-ford        { background: #003399 !important; color: #ffffff; }
+.wec-h2h-id-block.man-mercedes    { background: #333333 !important; color: #ffffff; }
+.wec-h2h-id-block.man-vanwall     { background: #000000 !important; color: #ffffff; }
+.wec-h2h-id-block.man-isotta      { background: #8d191d !important; color: #ffffff; }
+.wec-h2h-id-block.man-default     { background: #1a1740 !important; color: #ffffff; }
+
+/* White logo mask for McLaren, Mercedes and Lexus in H2H 1v1 */
+.wec-h2h-id-block.man-mclaren .wec-h2h-logo-img,
+.wec-h2h-id-block.man-mercedes .wec-h2h-logo-img,
+.wec-h2h-id-block.man-lexus .wec-h2h-logo-img {
+    filter: brightness(0) invert(1) !important;
+}
+
+.wec-h2h-id-block.man-porsche .wec-h2h-logo-img {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4)) !important;
+}
+
+.wec-h2h-mfr-logo {
+    width: 46px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wec-h2h-logo-img {
+    max-width: 44px;
+    max-height: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.wec-h2h-car-num {
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    line-height: 1;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* Driver Info Area */
+.wec-h2h-driver-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 6px;
+    z-index: 10;
+    min-width: 0;
+}
+
+.wec-h2h-card.left .wec-h2h-driver-area {
+    padding-right: 12px;
+}
+
+.wec-h2h-card.right .wec-h2h-driver-area {
+    padding-left: 24px;
+}
+
+.wec-h2h-rank-badge {
+    font-size: 13px;
+    font-weight: 900;
+    font-style: italic;
+    color: #00B9FF;
+    letter-spacing: 1px;
+}
+
+.wec-h2h-names {
+    display: flex;
+    flex-direction: column;
+    margin: 2px 0;
+}
+
+.wec-h2h-full-name {
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.5px;
+}
+
+.wec-h2h-team-sub {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+
+.wec-h2h-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.wec-h2h-tyre-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 900;
+    color: #111827;
+    background: #facc15;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.wec-h2h-tyre-dot.tyre-s { background: #ef4444; color: #ffffff; }
+.wec-h2h-tyre-dot.tyre-m { background: #facc15; color: #111827; }
+.wec-h2h-tyre-dot.tyre-h { background: #ffffff; color: #111827; }
+.wec-h2h-tyre-dot.tyre-w { background: #3b82f6; color: #ffffff; }
+
+.wec-h2h-lap-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: #cbd5e1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 3D Pop-Out Photo */
+.wec-h2h-photo-box {
+    position: relative;
+    width: 90px;
+    height: 110px;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+.wec-h2h-photo {
+    position: absolute;
+    bottom: 0;
+    height: 138px;
+    max-width: none;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.9));
+    z-index: 5;
+}
+
+.wec-h2h-card.left .wec-h2h-photo {
+    left: 55px;
+    transform: translateX(-50%);
+}
+
+.wec-h2h-card.right .wec-h2h-photo {
+    left: 35px;
+    transform: translateX(-50%);
+}
+
+
+/* Center Delta Pillar */
+.wec-h2h-center-pillar {
+    width: 140px;
+    background: radial-gradient(circle, #051438 0%, #020716 100%);
+    border-left: 1px solid rgba(0, 185, 255, 0.4);
+    border-right: 1px solid rgba(0, 185, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    z-index: 10;
+}
+
+.wec-h2h-gap-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: #38bdf8;
+    letter-spacing: 2px;
+}
+
+.wec-h2h-gap-val {
+    font-family: 'Rajdhani', 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 14px rgba(0, 185, 255, 0.8);
+    margin: 2px 0;
+}
+
+.wec-h2h-gap-sub {
+    font-size: 10px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 1.5px;
+}
+
+/* ===================================================
+   WEC OFFICIAL REPLAY BANNER WIDGET
+   =================================================== */
+#replay-banner-container {
+    position: fixed;
+    top: 30px;
+    left: 360px;
+    z-index: 950;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#replay-banner-container.hidden {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+    pointer-events: none;
+    display: none !important;
+}
+
+.wec-replay-card {
+    display: flex;
+    align-items: stretch;
+    height: 38px;
+    background: rgba(2, 6, 20, 0.96);
+    border: 2px solid rgba(0, 185, 255, 0.85);
+    border-radius: 4px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 12px rgba(0, 185, 255, 0.35);
+    overflow: hidden;
+}
+
+.wec-replay-logo-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(1, 4, 15, 0.98);
+    padding: 0 14px;
+    border-right: 1.5px solid rgba(0, 185, 255, 0.4);
+}
+
+.wec-replay-logo {
+    height: 22px;
+    max-width: 90px;
+    object-fit: contain;
+    filter: invert(53%) sepia(93%) saturate(3174%) hue-rotate(167deg) brightness(101%) contrast(105%);
+}
+
+.wec-replay-badge-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, rgba(8, 20, 56, 0.96) 0%, rgba(14, 32, 82, 0.96) 100%);
+    padding: 0 18px;
+}
+
+.wec-replay-text {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 2.5px;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* ===================================================
+   TOWER MODES (TYRE, STOPS, POSITIONS, NAME)
+   =================================================== */
+
+.wec-tyres-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wec-tyre-circle {
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-weight: 900;
+    font-size: 11px;
+    line-height: 1;
+    background: #020713;
+    box-sizing: border-box;
+}
+
+/* Soft: borda e texto brancos/cinza claro */
+.wec-tyre-circle.tyre-s {
+    border: 1.5px solid #ffffff;
+    color: #ffffff;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
+}
+
+/* Medium: borda e texto amarelos ouro (WEC) */
+.wec-tyre-circle.tyre-m {
+    border: 1.5px solid #ffcc00;
+    color: #ffcc00;
+    box-shadow: 0 0 3px rgba(255, 204, 0, 0.4);
+}
+
+/* Hard: borda e texto vermelhos */
+.wec-tyre-circle.tyre-h {
+    border: 1.5px solid #ff3333;
+    color: #ff3333;
+    box-shadow: 0 0 3px rgba(255, 51, 51, 0.4);
+}
+
+/* Wet: borda e texto azuis */
+.wec-tyre-circle.tyre-w {
+    border: 1.5px solid #00a2ff;
+    color: #00a2ff;
+    box-shadow: 0 0 3px rgba(0, 162, 255, 0.4);
+}
+
+/* Unknown / Vazio */
+.wec-tyre-circle.tyre-unknown {
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.wec-stops-text {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.wec-pos-change {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.wec-pos-change.gain {
+    color: #00ff66;
+    text-shadow: 0 0 6px rgba(0, 255, 102, 0.4);
+}
+
+.wec-pos-change.loss {
+    color: #ff3344;
+    text-shadow: 0 0 6px rgba(255, 51, 68, 0.4);
+}
+
+.wec-pos-change.neutral {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+/* ===================================================
+   OFFICIAL WEC NAME MODE — SINGLE CONTINUOUS ROW
+   =================================================== */
+
+.wec-row.wec-row-name-mode {
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    height: 33px !important;
+    width: 100% !important;
+    background: rgba(8, 14, 32, 0.95) !important;
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.4) !important;
+    box-sizing: border-box !important;
+    padding: 0 10px 0 0 !important;
+    overflow: hidden !important;
+}
+
+.wec-row.wec-row-name-mode.focused-row {
+    background: rgba(0, 80, 180, 0.45) !important;
+    border-left: 3px solid #00B9FF !important;
+}
+
+.wec-row-name-main {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+}
+
+.wec-driver-fullname {
+    flex: 1;
+    min-width: 0;
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 14px;
+    color: #ffffff;
+    text-align: left;
+    padding-left: 8px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wec-name-mode-pit {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+}
+
+.wec-name-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    line-height: 1.1;
+    padding-left: 2px;
+}
+
+.wec-name-driver {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+
+.wec-name-team {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(0, 185, 255, 0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ===================================================
+   VIRTUAL ENERGY TANK — 5 SEGMENTED BARS (OFFICIAL WEC)
+   =================================================== */
+
+.wec-energy-tank-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+}
+
+.wec-energy-tank-row + .wec-data-right {
+    margin-left: 14px !important;
+    flex-shrink: 0 !important;
+}
+
+.wec-energy-bars-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wec-energy-segments {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wec-energy-seg {
+    width: 10px;
+    height: 16px;
+    border-radius: 2px;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Segmentos inativos (apagados / escuros com leve contorno) */
+.wec-energy-seg.seg-off {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Cores dos segmentos ativos por nível */
+.wec-energy-seg.seg-red {
+    background: #ff2233 !important;
+    box-shadow: 0 0 6px rgba(255, 34, 51, 0.6);
+}
+
+.wec-energy-seg.seg-orange {
+    background: #ff7700 !important;
+    box-shadow: 0 0 5px rgba(255, 119, 0, 0.5);
+}
+
+.wec-energy-seg.seg-yellow {
+    background: #ffcc00 !important;
+    box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+}
+
+.wec-energy-seg.seg-lime {
+    background: #a2e800 !important;
+    box-shadow: 0 0 5px rgba(162, 232, 0, 0.5);
+}
+
+.wec-energy-seg.seg-green {
+    background: #00e650 !important;
+    box-shadow: 0 0 6px rgba(0, 230, 80, 0.6);
+}
+
+.wec-energy-pct-text {
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    font-style: italic;
+    color: #ffffff;
+    min-width: 44px;
+    text-align: right;
+    letter-spacing: 0.5px;
+}
+
+.wec-energy-pct-text small {
+    font-size: 11px;
+    font-weight: 800;
+    margin-left: 2px;
+}
+
+/* ==========================================================================
+   WEC 2025/2026 MULTI-DRIVER QUALIFY TRACKER (1 a 3 PILOTOS)
+   ========================================================================== */
+#wec-qualify-tracker-container {
+    position: fixed;
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 950;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    pointer-events: none;
+}
+
+#wec-qualify-tracker-container.hidden {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(35px) !important;
+    pointer-events: none;
+}
+
+#wec-qualify-tracker-container.manual-position.hidden {
+    opacity: 0 !important;
+    transform: translateY(35px) !important;
+    pointer-events: none;
+}
+
+/* Card Individual de Piloto */
+.wqt-card {
+    position: relative;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+/* Espaço do Patrocinador (Sponsor) - Fundo transparente para logo flutuar sobre o Card 1 */
+.wqt-sponsor-slot {
+    position: absolute;
+    top: -36px;
+    left: 0;
+    height: 34px;
+    min-width: 60px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+
+.wqt-sponsor-img {
+    max-height: 30px;
+    max-width: 110px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+}
+
+/* Faixa Superior: Cor da Montadora */
+.wqt-top-bar {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    box-sizing: border-box;
+    background-color: var(--man-color, #c8ccd0);
+    color: #111111;
+    font-style: italic;
+}
+
+/* Contraste de texto escuro ou claro dependendo da montadora */
+.wqt-top-bar.man-ferrari,
+.wqt-top-bar.man-alpine,
+.wqt-top-bar.man-bmw,
+.wqt-top-bar.man-toyota,
+.wqt-top-bar.man-ford,
+.wqt-top-bar.man-aston,
+.wqt-top-bar.man-isotta,
+.wqt-top-bar.man-oreca-elms,
+.wqt-top-bar.man-ligier,
+.wqt-top-bar.man-duqueine,
+.wqt-top-bar.man-ginetta,
+.wqt-top-bar.man-lmp3,
+.wqt-top-bar.man-mercedes,
+.wqt-top-bar.man-vanwall,
+.wqt-top-bar.man-genesis,
+.wqt-top-bar.man-lexus,
+.wqt-top-bar.man-mclaren {
+    color: #ffffff !important;
+}
+
+.wqt-top-bar.man-ferrari .wqt-num,
+.wqt-top-bar.man-ferrari .wqt-driver-name,
+.wqt-top-bar.man-alpine .wqt-num,
+.wqt-top-bar.man-alpine .wqt-driver-name,
+.wqt-top-bar.man-bmw .wqt-num,
+.wqt-top-bar.man-bmw .wqt-driver-name,
+.wqt-top-bar.man-toyota .wqt-num,
+.wqt-top-bar.man-toyota .wqt-driver-name,
+.wqt-top-bar.man-ford .wqt-num,
+.wqt-top-bar.man-ford .wqt-driver-name,
+.wqt-top-bar.man-aston .wqt-num,
+.wqt-top-bar.man-aston .wqt-driver-name,
+.wqt-top-bar.man-isotta .wqt-num,
+.wqt-top-bar.man-isotta .wqt-driver-name,
+.wqt-top-bar.man-oreca-elms .wqt-num,
+.wqt-top-bar.man-oreca-elms .wqt-driver-name,
+.wqt-top-bar.man-ligier .wqt-num,
+.wqt-top-bar.man-ligier .wqt-driver-name,
+.wqt-top-bar.man-duqueine .wqt-num,
+.wqt-top-bar.man-duqueine .wqt-driver-name,
+.wqt-top-bar.man-ginetta .wqt-num,
+.wqt-top-bar.man-ginetta .wqt-driver-name,
+.wqt-top-bar.man-lmp3 .wqt-num,
+.wqt-top-bar.man-lmp3 .wqt-driver-name,
+.wqt-top-bar.man-mercedes .wqt-num,
+.wqt-top-bar.man-mercedes .wqt-driver-name,
+.wqt-top-bar.man-vanwall .wqt-num,
+.wqt-top-bar.man-vanwall .wqt-driver-name,
+.wqt-top-bar.man-genesis .wqt-num,
+.wqt-top-bar.man-genesis .wqt-driver-name,
+.wqt-top-bar.man-lexus .wqt-num,
+.wqt-top-bar.man-lexus .wqt-driver-name,
+.wqt-top-bar.man-mclaren .wqt-num,
+.wqt-top-bar.man-mclaren .wqt-driver-name {
+    color: #ffffff !important;
+}
+
+.wqt-top-bar.man-lexus {
+    background: #14171d !important;
+    border-bottom: 2px solid #3a404d;
+}
+
+.wqt-top-bar.man-corvette,
+.wqt-top-bar.man-chevrolet,
+.wqt-top-bar.man-cadillac,
+.wqt-top-bar.man-peugeot,
+.wqt-top-bar.man-porsche,
+.wqt-top-bar.man-oreca,
+.wqt-top-bar.man-lamborghini {
+    color: #0b0f19 !important;
+}
+
+.wqt-top-bar.man-corvette .wqt-num,
+.wqt-top-bar.man-corvette .wqt-driver-name,
+.wqt-top-bar.man-chevrolet .wqt-num,
+.wqt-top-bar.man-chevrolet .wqt-driver-name,
+.wqt-top-bar.man-cadillac .wqt-num,
+.wqt-top-bar.man-cadillac .wqt-driver-name,
+.wqt-top-bar.man-peugeot .wqt-num,
+.wqt-top-bar.man-peugeot .wqt-driver-name,
+.wqt-top-bar.man-porsche .wqt-num,
+.wqt-top-bar.man-porsche .wqt-driver-name,
+.wqt-top-bar.man-oreca .wqt-num,
+.wqt-top-bar.man-oreca .wqt-driver-name,
+.wqt-top-bar.man-lamborghini .wqt-num,
+.wqt-top-bar.man-lamborghini .wqt-driver-name {
+    color: #0b0f19 !important;
+}
+
+/* Regras de Filtro de Logos (idênticas à torre de classificação) */
+.wqt-top-bar.man-mclaren .wqt-logo img,
+.wqt-top-bar.man-mercedes .wqt-logo img,
+.wqt-top-bar.man-toyota .wqt-logo img,
+.wqt-top-bar.man-vanwall .wqt-logo img,
+.wqt-top-bar.man-genesis .wqt-logo img,
+.wqt-top-bar.man-alpine .wqt-logo img,
+.wqt-top-bar.man-aston .wqt-logo img,
+.wqt-top-bar.man-ford .wqt-logo img,
+.wqt-top-bar.man-isotta .wqt-logo img,
+.wqt-top-bar.man-bmw .wqt-logo img,
+.wqt-top-bar.man-lexus .wqt-logo img,
+.wqt-top-bar.logo-white .wqt-logo img {
+    filter: brightness(0) invert(1) !important;
+}
+
+.wqt-top-bar.man-cadillac .wqt-logo img,
+.wqt-top-bar.logo-black .wqt-logo img {
+    filter: brightness(0) !important;
+}
+
+.wqt-logo {
+    width: 22px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.wqt-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.wqt-num {
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.wqt-driver-name {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: auto;
+}
+
+/* Corpo Principal (Azul Marinho WEC Escuro) com Perspectiva 3D */
+.wqt-main-body {
+    height: 48px;
+    background: #060a1d;
+    position: relative;
+    overflow: hidden;
+    perspective: 500px;
+    transform-style: preserve-3d;
+}
+
+/* Camadas de Conteúdo (Posicionamento absoluto para permitir transição 3D) */
+.wqt-row-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    transform-origin: 50% 50%;
+}
+
+.wqt-row-layer.wqt-delta-layer {
+    justify-content: center !important;
+}
+
+/* Animações 3D Roll / Flip (Efeito Oficial WEC Foto 3) */
+.wqt-roll-in {
+    animation: wqtRollIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.wqt-roll-out {
+    animation: wqtRollOut 0.40s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes wqtRollIn {
+    0% {
+        transform: translateY(-100%) rotateX(80deg);
+        opacity: 0;
+        filter: blur(2px);
+    }
+    50% {
+        opacity: 1;
+        filter: blur(0px);
+    }
+    100% {
+        transform: translateY(0) rotateX(0deg);
+        opacity: 1;
+        filter: blur(0px);
+    }
+}
+
+@keyframes wqtRollOut {
+    0% {
+        transform: translateY(0) rotateX(0deg);
+        opacity: 1;
+        filter: blur(0px);
+    }
+    100% {
+        transform: translateY(100%) rotateX(-80deg);
+        opacity: 0;
+        filter: blur(2px);
+    }
+}
+
+.wqt-rank {
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    display: flex;
+    align-items: baseline;
+    line-height: 1;
+}
+
+.wqt-rank-suffix {
+    font-size: 15px;
+    font-weight: 800;
+    margin-left: 2px;
+}
+
+.wqt-time {
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.wqt-delta-val {
+    font-size: 32px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffde00;
+    letter-spacing: 1px;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.wqt-delta-val.gain {
+    color: #00ff66;
+}
+
+.wqt-delta-val.purple {
+    color: #d154ff;
+}
+
+.wqt-lap-final-time {
+    font-size: 28px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.wqt-lap-final-time.invalid {
+    color: #ff4444;
+    text-decoration: line-through;
+}
+
+/* Barra Inferior de Setores (S1, S2, S3) */
+.wqt-sectors-bar {
+    height: 18px;
+    background: #040714;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+}
+
+.wqt-sector-item {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.wqt-sector-label {
+    font-size: 9px;
+    font-weight: 900;
+    font-style: italic;
+    color: #5a6e85;
+    line-height: 1;
+    margin-bottom: 2px;
+    transition: color 0.2s ease;
+}
+
+.wqt-sector-label.sec-green  { color: #00e640 !important; }
+.wqt-sector-label.sec-purple { color: #d154ff !important; }
+.wqt-sector-label.sec-yellow { color: #ffcc00 !important; }
+
+.wqt-sector-line {
+    width: 85%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 1px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wqt-sector-line.sec-green {
+    background: #00e640 !important;
+    box-shadow: 0 0 6px rgba(0, 230, 64, 0.6);
+}
+
+.wqt-sector-line.sec-purple {
+    background: #d154ff !important;
+    box-shadow: 0 0 6px rgba(209, 84, 255, 0.7);
+}
+
+.wqt-sector-line.sec-yellow {
+    background: #ffcc00 !important;
+    box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+}
+
+@keyframes wqt-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   WEC STARTING GRID (GRADE DE LARGADA)
+   ========================================================================== */
+#wec-starting-grid-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1760px;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#wec-starting-grid-container.hidden {
+    opacity: 0 !important;
+    transform: translate(-50%, -48%) !important;
+    pointer-events: none;
+}
+
+#wec-starting-grid-container.manual-position.hidden {
+    opacity: 0 !important;
+    transform: translateY(-2%) !important;
+    pointer-events: none;
+}
+
+/* ---- Header ---- */
+.wsg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, rgba(2, 7, 19, 0.95) 0%, rgba(10, 18, 45, 0.97) 50%, rgba(2, 7, 19, 0.95) 100%);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.18);
+    padding: 6px 20px;
+    height: 52px;
+    box-sizing: border-box;
+}
+
+.wsg-header-logo img {
+    height: 30px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.wsg-header-event {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.wsg-header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 120px;
+}
+
+.wsg-sponsor-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 38px;
+    max-width: 140px;
+}
+
+.wsg-sponsor-img {
+    max-height: 34px;
+    max-width: 130px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
+/* ---- Body (3 colunas) ---- */
+.wsg-body {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 710px;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.wsg-body.wsg-class-fading {
+    opacity: 0;
+    transform: scale(0.97);
+}
+
+/* ---- Painéis Laterais ---- */
+.wsg-side-panel {
+    flex: 0 0 540px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--man-color, #111827);
+    overflow: hidden;
+    transition: background 0.3s ease;
+    min-height: 710px;
+}
+
+/* Gradiente para legibilidade sobre a foto */
+.wsg-side-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.7) 0%,
+        rgba(0,0,0,0.1) 40%,
+        rgba(0,0,0,0.2) 65%,
+        rgba(0,0,0,0.85) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Faixa superior: Nome da Equipe e Logo da Montadora ACIMA da foto do piloto */
+.wsg-top-row {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    gap: 16px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+    box-sizing: border-box;
+}
+
+.wsg-top-row-right {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.wsg-team-name {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    line-height: 1.15;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    flex: 1;
+    word-break: break-word;
+}
+
+.wsg-team-right {
+    text-align: right;
+}
+
+/* Logo da Montadora: posição absoluta no canto do painel */
+.wsg-mfr-logo-wrap {
+    position: absolute;
+    top: 10px;
+    width: 230px;
+    height: 115px;
+    display: flex;
+    align-items: center;
+    z-index: 4;
+    box-sizing: border-box;
+    padding: 4px 10px;
+}
+
+/* Painel esquerdo: logo no canto superior DIREITO (borda interna, junto à espinha) */
+.wsg-left .wsg-mfr-logo-wrap {
+    right: 8px;
+    justify-content: flex-end;
+}
+
+/* Painel direito: logo no canto superior ESQUERDO (borda interna, junto à espinha) */
+.wsg-right .wsg-mfr-logo-wrap {
+    left: 8px;
+    justify-content: flex-start;
+}
+
+/* Espaçamento para o nome da equipe não colidir com o logo da montadora */
+.wsg-left .wsg-top-row {
+    flex-direction: row;
+    padding-right: 240px;
+}
+
+.wsg-right .wsg-top-row {
+    flex-direction: row;
+    padding-left: 240px;
+    justify-content: flex-end;
+}
+
+.wsg-mfr-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8));
+}
+
+/* Regras de filtro do logo oficial por montadora (idênticas à torre de classificação) */
+.wsg-side-panel.man-mclaren .wsg-mfr-logo,
+.wsg-side-panel.man-mercedes .wsg-mfr-logo {
+    filter: brightness(0) invert(1) drop-shadow(0 4px 10px rgba(0,0,0,0.8)) !important;
+}
+
+
+/* Foto do Piloto: agora tem todo o espaço central livre e pode ser maior */
+.wsg-driver-photo {
+    position: absolute;
+    bottom: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 520px;
+    width: auto;
+    max-width: 90%;
+    object-fit: contain;
+    object-position: bottom center;
+    z-index: 2;
+    transition: opacity 0.4s ease;
+}
+
+.wsg-left .wsg-driver-photo {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.wsg-right .wsg-driver-photo {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.wsg-driver-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    display: flex;
+    align-items: flex-end;
+    padding: 14px 22px;
+    gap: 14px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.92) 100%);
+}
+
+.wsg-driver-bottom-right {
+    flex-direction: row-reverse;
+}
+
+.wsg-driver-pos-num {
+    font-size: 100px;
+    font-weight: 900;
+    line-height: 0.85;
+    color: #ffffff;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.9);
+    font-style: italic;
+    flex-shrink: 0;
+}
+
+.wsg-driver-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    padding-bottom: 6px;
+}
+
+.wsg-driver-info-right {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.wsg-driver-name {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wsg-driver-class-badge {
+    display: inline-block;
+    padding: 3px 14px;
+    font-size: 13px;
+    font-weight: 950;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    width: fit-content;
+}
+
+/* Cores oficiais da WEC para a badge de classe */
+.wsg-driver-class-badge.cls-hypercar {
+    background-color: #e1001a !important;
+    color: #ffffff !important;
+}
+
+.wsg-driver-class-badge.cls-lmp2 {
+    background-color: #0055a4 !important;
+    color: #ffffff !important;
+}
+
+.wsg-driver-class-badge.cls-lmp2-elms {
+    background-color: #003b73 !important;
+    color: #ffffff !important;
+}
+
+.wsg-driver-class-badge.cls-lmp3 {
+    background-color: #800080 !important;
+    color: #ffffff !important;
+}
+
+.wsg-driver-class-badge.cls-lmgt3,
+.wsg-driver-class-badge.cls-gt3 {
+    background-color: #008c45 !important;
+    color: #ffffff !important;
+}
+
+.wsg-driver-class-badge.cls-gte {
+    background-color: #ffd700 !important;
+    color: #000000 !important;
+}
+
+/* Cores de fundo do painel lateral por montadora (Sincronizado com a Torre WEC) */
+.wsg-side-panel.man-ferrari   { background: #E10600; }
+.wsg-side-panel.man-toyota    { background: #000000; }
+.wsg-side-panel.man-bmw       { background: #142E8E; }
+.wsg-side-panel.man-alpine    { background: #005696; }
+.wsg-side-panel.man-aston     { background: #00665E; }
+.wsg-side-panel.man-ford      { background: #003399; }
+.wsg-side-panel.man-mclaren   { background: #FF8000; }
+.wsg-side-panel.man-isotta    { background: #8D191D; }
+.wsg-side-panel.man-lamborghini { background: #8aa12c; }
+.wsg-side-panel.man-cadillac  { background: #FFD700; }
+.wsg-side-panel.man-lexus     { background: #000000; }
+.wsg-side-panel.man-porsche   { background: #ffffff; }
+.wsg-side-panel.man-peugeot   { background: #CEFF05; }
+.wsg-side-panel.man-corvette,
+.wsg-side-panel.man-chevrolet { background: #FFD700; }
+.wsg-side-panel.man-genesis   { background: #000000; }
+.wsg-side-panel.man-mercedes  { background: #333333; }
+.wsg-side-panel.man-vanwall   { background: #000000; }
+.wsg-side-panel.man-oreca     { background: #7FB5FF; }
+.wsg-side-panel.man-oreca-elms { background: #005696; }
+.wsg-side-panel.man-ligier,
+.wsg-side-panel.man-ginetta,
+.wsg-side-panel.man-duqueine  { background: #9400D3; }
+.wsg-side-panel.man-glickenhaus { background: #005aff; }
+
+/* Invert/contrast adjustments for bright backgrounds in Starting Grid */
+.wsg-side-panel.man-porsche .wsg-team-name {
+    color: #111827 !important;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Nome do piloto e posição mantêm-se brancos como os demais sobre o gradiente inferior escuro */
+.wsg-side-panel.man-porsche .wsg-driver-name,
+.wsg-side-panel.man-porsche .wsg-driver-pos-num {
+    color: #ffffff !important;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.9) !important;
+}
+
+.wsg-side-panel.man-porsche::after {
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.7) 0%,
+        rgba(255,255,255,0.05) 35%,
+        rgba(0,0,0,0.3) 65%,
+        rgba(0,0,0,0.92) 100%
+    );
+}
+
+.wsg-side-panel.man-lexus .wsg-mfr-logo {
+    filter: brightness(0) invert(1) drop-shadow(0 4px 10px rgba(0,0,0,0.8)) !important;
+}
+
+
+
+/* ---- Centro: Coluna de Grid (Ocupação dinâmica do espaço) ---- */
+.wsg-center-spine {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(2, 7, 19, 0.96) 0%, rgba(6, 12, 35, 0.98) 100%);
+    padding: 12px 14px 0 14px;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+}
+
+.wsg-grid-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 4px;
+    width: 100%;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    overflow-y: hidden;
+}
+
+/* Linha da Grade (Row) contendo coluna esquerda (ímpar) e coluna direita (par) intercaladas */
+.wsg-grid-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+    position: relative;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    flex: 1;
+    max-height: 60px;
+}
+
+/* Posições escalonadas (zigue-zague): o carro da esquerda (ímpar) fica ligeiramente mais avançado */
+.wsg-col-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    transform: translateY(-4px);
+    height: 100%;
+    align-items: center;
+}
+
+.wsg-col-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    transform: translateY(4px);
+    height: 100%;
+    align-items: center;
+}
+
+/* Cartão Individual da Posição (+30% de escala e contraste aprimorado) */
+.wsg-grid-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 16px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-sizing: border-box;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0.85;
+    min-width: 145px;
+    height: 88%;
+}
+
+.wsg-grid-item.wsg-selected {
+    background: rgba(255, 255, 255, 0.24);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.45), inset 0 0 10px rgba(255, 255, 255, 0.2);
+    opacity: 1;
+    transform: scale(1.08);
+}
+
+.wsg-item-pos {
+    font-size: 17px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+    min-width: 34px;
+    text-align: right;
+    font-style: italic;
+}
+
+.wsg-grid-item.wsg-selected .wsg-item-pos {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.wsg-item-pos sup {
+    font-size: 12px;
+}
+
+.wsg-item-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 11px;
+    border-radius: 4px;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    min-width: 68px;
+    justify-content: center;
+}
+
+.wsg-item-badge-logo {
+    height: 19px;
+    width: auto;
+    max-width: 30px;
+    object-fit: contain;
+}
+
+/* Badge colors by class */
+.wsg-item-badge.cls-hypercar { background: #E10600; color: #fff; }
+.wsg-item-badge.cls-lmp2     { background: #7FB5FF; color: #0b0f19; }
+.wsg-item-badge.cls-lmp2-elms{ background: #005696; color: #fff; }
+.wsg-item-badge.cls-lmp3     { background: #9400D3; color: #fff; }
+.wsg-item-badge.cls-lmgt3    { background: #00C853; color: #0b0f19; }
+.wsg-item-badge.cls-gte      { background: #FF8F00; color: #0b0f19; }
+.wsg-item-badge.cls-default  { background: rgba(255,255,255,0.18); color: #fff; }
+
+/* ---- Label STARTING GRID ROW N ---- */
+.wsg-row-label {
+    width: 100%;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+/* ---- Animação de entrada ---- */
+@keyframes wsg-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+#wec-starting-grid-container:not(.hidden) {
+    animation: wsg-fade-in 0.4s ease forwards;
+}
+
+/* ---- Footer (barra de redes sociais) ---- */
+.wsg-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, rgba(2, 7, 19, 0.95) 0%, rgba(10, 18, 45, 0.97) 50%, rgba(2, 7, 19, 0.95) 100%);
+    border-top: 2px solid rgba(255, 255, 255, 0.18);
+    padding: 0 20px;
+    height: 52px;
+    box-sizing: border-box;
+    gap: 12px;
+}
+
+.wsg-footer-social {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    text-transform: none;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+}
+
+.wsg-footer-social:nth-child(2) {
+    justify-content: center;
+    text-align: center;
+}
+
+.wsg-footer-social:last-child {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.wsg-footer-social-icon {
+    opacity: 0.6;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.wsg-social-icon-svg {
+    display: inline-block;
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+    fill: #ffffff;
+    opacity: 0.95;
+    flex-shrink: 0;
+}
+
+.wsg-social-icon-img {
+    height: 22px;
+    max-width: 34px;
+    object-fit: contain;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.wsg-social-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wsg-footer-social:empty {
+    display: none;
+}
+
+/* ============================================================
+   OFFICIAL WEC FASTEST LAP BY CLASS WIDGET
+   ============================================================ */
+#wec-fastest-lap-container {
+    position: fixed;
+    top: 140px;
+    right: 40px;
+    z-index: 1000;
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    transform: scale(var(--layout-scale, 1));
+    transform-origin: top right;
+    transition: opacity 0.25s ease;
+}
+
+#wec-fastest-lap-container.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.wec-fl-wrapper {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    background: #080d24;
+    border: 2px solid #00B9FF;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85);
+}
+
+/* Top Header Bar */
+.wec-fl-header {
+    height: 40px;
+    background: linear-gradient(90deg, #018544 0%, #006030 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    border-bottom: 2px solid #00B9FF;
+}
+
+.wec-fl-header-title {
+    font-size: 15px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 2px;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.wec-fl-header-sponsor {
+    display: flex;
+    align-items: center;
+    height: 26px;
+}
+
+.wec-fl-sponsor-img {
+    height: 24px;
+    max-width: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Cards List */
+.wec-fl-cards {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.wec-fl-card {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-bottom: 2px solid #00B9FF;
+    overflow: hidden;
+    background: #090c24;
+    will-change: transform;
+    transform: translateX(0);
+}
+
+.wec-fl-card:last-child {
+    border-bottom: none;
+}
+
+/* Keyframes de deslizamento dos cards (Duração 2.2s igual à transição da torre) */
+@keyframes flCardSlideIn {
+    0% {
+        transform: translateX(-105%);
+    }
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+@keyframes flCardSlideOut {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-105%);
+    }
+}
+
+/* Entrada dos cards ao acionar o widget - deslizando para a direita (2.2s com curva expo suave) */
+#wec-fastest-lap-container.entering .wec-fl-card {
+    animation: flCardSlideIn 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+#wec-fastest-lap-container.entering .wec-fl-card:nth-child(1) {
+    animation-delay: 0s;
+}
+
+#wec-fastest-lap-container.entering .wec-fl-card:nth-child(2) {
+    animation-delay: 0.14s;
+}
+
+#wec-fastest-lap-container.entering .wec-fl-card:nth-child(3) {
+    animation-delay: 0.28s;
+}
+
+/* Saída dos cards ao desligar o widget - deslizando para a esquerda de onde vieram (2.2s) */
+#wec-fastest-lap-container.exiting .wec-fl-card {
+    animation: flCardSlideOut 2.2s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+#wec-fastest-lap-container.exiting .wec-fl-card:nth-child(1) {
+    animation-delay: 0.12s;
+}
+
+#wec-fastest-lap-container.exiting .wec-fl-card:nth-child(2) {
+    animation-delay: 0s;
+}
+
+#wec-fastest-lap-container.exiting .wec-fl-card:nth-child(3) {
+    animation-delay: 0s;
+}
+
+/* Lap Time Pill Bar */
+.wec-fl-time-bar {
+    height: 38px;
+    background: #a855f7; /* Roxo padrão de fastest lap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+.wec-fl-time-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffffff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Card Body */
+.wec-fl-card-body {
+    height: 150px;
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    background: #0e1235;
+    overflow: hidden;
+}
+
+/* Manufacturer Color Gradient Overlay */
+.wec-fl-bg-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0.95;
+    z-index: 1;
+    background-color: var(--man-color, #0e1235);
+}
+
+/* Regras de cores oficiais das fabricantes para o fundo dos cards */
+.wec-fl-card.man-ferrari .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-ferrari     { background: linear-gradient(135deg, #e10600 0%, #8a0000 100%) !important; }
+.wec-fl-card.man-toyota .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-toyota      { background: linear-gradient(135deg, #1f242d 0%, #0d0f14 100%) !important; }
+.wec-fl-card.man-bmw .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-bmw         { background: linear-gradient(135deg, #142e8e 0%, #081442 100%) !important; }
+.wec-fl-card.man-alpine .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-alpine      { background: linear-gradient(135deg, #005696 0%, #002b4d 100%) !important; }
+.wec-fl-card.man-aston .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-aston       { background: linear-gradient(135deg, #00665e 0%, #00332f 100%) !important; }
+.wec-fl-card.man-ford .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-ford        { background: linear-gradient(135deg, #003399 0%, #001a4d 100%) !important; }
+.wec-fl-card.man-mclaren .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-mclaren     { background: linear-gradient(135deg, #ff8000 0%, #b35900 100%) !important; }
+.wec-fl-card.man-isotta .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-isotta      { background: linear-gradient(135deg, #8d191d 0%, #470d0f 100%) !important; }
+.wec-fl-card.man-lamborghini .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-lamborghini { background: linear-gradient(135deg, #8aa12c 0%, #465313 100%) !important; }
+.wec-fl-card.man-cadillac .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-cadillac    { background: linear-gradient(135deg, #FFD700 0%, #998100 100%) !important; }
+.wec-fl-card.man-lexus .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-lexus       { background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important; }
+.wec-fl-card.man-porsche .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-porsche     { background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%) !important; }
+.wec-fl-card.man-corvette .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-corvette,
+.wec-fl-card.man-chevrolet .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-chevrolet   { background: linear-gradient(135deg, #FFD700 0%, #998100 100%) !important; }
+.wec-fl-card.man-peugeot .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-peugeot     { background: linear-gradient(135deg, #CEFF05 0%, #7d9b00 100%) !important; }
+.wec-fl-card.man-genesis .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-genesis     { background: linear-gradient(135deg, #222222 0%, #0d0d0d 100%) !important; }
+.wec-fl-card.man-mercedes .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-mercedes    { background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%) !important; }
+.wec-fl-card.man-vanwall .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-vanwall     { background: linear-gradient(135deg, #222222 0%, #0d0d0d 100%) !important; }
+.wec-fl-card.man-oreca .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-oreca       { background: linear-gradient(135deg, #7FB5FF 0%, #3d6eb3 100%) !important; }
+.wec-fl-card.man-oreca-elms .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-oreca-elms  { background: linear-gradient(135deg, #005696 0%, #001a33 100%) !important; }
+.wec-fl-card.man-ligier .wec-fl-bg-layer,
+.wec-fl-card.man-ginetta .wec-fl-bg-layer,
+.wec-fl-card.man-duqueine .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-ligier,
+.wec-fl-bg-layer.man-ginetta,
+.wec-fl-bg-layer.man-duqueine    { background: linear-gradient(135deg, #9400D3 0%, #4a006a 100%) !important; }
+.wec-fl-card.man-glickenhaus .wec-fl-bg-layer,
+.wec-fl-bg-layer.man-glickenhaus { background: linear-gradient(135deg, #005aff 0%, #002d80 100%) !important; }
+.wec-fl-bg-layer.man-default     { background: linear-gradient(135deg, #0e1235 0%, #06081a 100%) !important; }
+
+/* Regras de contraste para fundos claros em Fastest Lap (Porsche) */
+.wec-fl-card.man-porsche .wec-fl-first-name {
+    color: rgba(0, 0, 0, 0.75) !important;
+}
+
+.wec-fl-card.man-porsche .wec-fl-last-name {
+    color: #111827 !important;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5) !important;
+}
+
+.wec-fl-card.man-porsche .wec-fl-team-name {
+    color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.wec-fl-card.man-porsche .wec-fl-ghost-num {
+    color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Regras de filtros para logos das fabricantes (Identidade Visual WEC) */
+.wec-fl-card.man-mclaren .wec-fl-mfr-logo-img,
+.wec-fl-card.man-mercedes .wec-fl-mfr-logo-img,
+.wec-fl-card.man-alpine .wec-fl-mfr-logo-img,
+.wec-fl-card.man-aston .wec-fl-mfr-logo-img,
+.wec-fl-card.man-toyota .wec-fl-mfr-logo-img,
+.wec-fl-card.man-lexus .wec-fl-mfr-logo-img,
+.wec-fl-card.man-ford .wec-fl-mfr-logo-img {
+    filter: brightness(0) invert(1) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6)) !important;
+}
+
+.wec-fl-card.man-porsche .wec-fl-mfr-logo-img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Big Ghost Car Number in Background */
+.wec-fl-ghost-num {
+    position: absolute;
+    left: 45px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Outfit', 'Rajdhani', sans-serif;
+    font-size: 140px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.18);
+    line-height: 1;
+    z-index: 2;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Info Column (Left) */
+.wec-fl-info-col {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 14px;
+    width: 58%;
+    min-width: 0;
+}
+
+.wec-fl-mfr-badge {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    margin-bottom: 6px;
+}
+
+.wec-fl-mfr-logo-img {
+    height: 26px;
+    max-width: 90px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+}
+
+.wec-fl-driver-wrap {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+}
+
+.wec-fl-first-name {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+}
+
+.wec-fl-last-name {
+    font-size: 20px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 1px;
+    color: #ffffff;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.wec-fl-team-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+/* Driver Photo Column (Right) */
+.wec-fl-photo-col {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 155px;
+    height: 165px;
+    z-index: 4;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.wec-fl-photo-img {
+    position: absolute;
+    right: -5px;
+    bottom: 0;
+    height: 165px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+    object-position: bottom right;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.9));
+    transition: opacity 0.3s ease;
+}
+
+/* Bottom Class Banner */
+.wec-fl-class-footer {
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 2px;
+    color: #ffffff;
+    text-transform: uppercase;
+    z-index: 6;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================
+   OFFICIAL WEC TOWER CLASS WIPE TRANSITION
+   ============================================================ */
+.wec-tower-transition {
+    position: absolute;
+    top: 70px; /* Alinhado perfeitamente com a linha de divisão do wec-top-section */
+    bottom: 33px; /* Alinhado perfeitamente com o topo do wec-footer */
+    left: 0;
+    right: 0;
+    z-index: 100;
+    pointer-events: none;
+    overflow: hidden;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.wec-tower-transition.animating {
+    display: flex !important;
+}
+
+/* Background curtain with class colors */
+.wec-tower-trans-bg {
+    position: absolute;
+    inset: 0;
+    background: #008000;
+    transform: translateX(105%);
+    transition: none;
+}
+
+/* Specific class background gradients */
+.wec-tower-transition.trans-hypercar .wec-tower-trans-bg {
+    background: linear-gradient(135deg, #e10600 0%, #8a0000 100%);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.wec-tower-transition.trans-lmgt3 .wec-tower-trans-bg {
+    background: linear-gradient(135deg, #008f32 0%, #00551d 100%);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.wec-tower-transition.trans-lmp2 .wec-tower-trans-bg {
+    background: linear-gradient(135deg, #005696 0%, #002e52 100%);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.wec-tower-transition.trans-lmp3 .wec-tower-trans-bg {
+    background: linear-gradient(135deg, #800080 0%, #4a004a 100%);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.wec-tower-transition.trans-gte .wec-tower-trans-bg {
+    background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.wec-tower-transition.trans-all .wec-tower-trans-bg {
+    background: linear-gradient(135deg, #0088cc 0%, #021533 100%);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Content layer holding typography */
+.wec-tower-trans-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Background watermark ghost text (rapid motion streak on entry) */
+.wec-tower-trans-ghost-text {
+    position: absolute;
+    font-family: 'Outfit', sans-serif;
+    font-size: 80px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
+    letter-spacing: -2px;
+    pointer-events: none;
+    user-select: none;
+    transform: scale(1.6);
+    opacity: 0;
+}
+
+/* Main impact text - crisp, high-contrast, perfectly visible */
+.wec-tower-trans-class-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 38px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 4px;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 2px 5px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    opacity: 0;
+}
+
+/* Keyframe Animations (2.2s total duration) */
+
+/* 1. Curtain wipes in from right, holds solid across leaderboard, then wipes out to left */
+@keyframes wecTowerWipe {
+    0% {
+        transform: translateX(101%);
+    }
+    15% {
+        transform: translateX(0%);
+    }
+    85% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-101%);
+    }
+}
+
+/* 2. Ghost watermark rapid entry streak only, then disappears completely to leave background clean */
+@keyframes wecTowerGhostAnim {
+    0% {
+        opacity: 0;
+        transform: scale(1.8) translateX(40px);
+        filter: blur(8px);
+    }
+    12% {
+        opacity: 0.25;
+        transform: scale(1.3) translateX(0);
+        filter: blur(3px);
+    }
+    22% {
+        opacity: 0;
+        transform: scale(1.1) translateX(-15px);
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.0);
+    }
+}
+
+/* 3. Text entrance: snaps sharp quickly, stays razor-sharp and visible for 1.6s, then slides cleanly with curtain */
+@keyframes wecTowerTextAnim {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateX(25px);
+        filter: blur(4px);
+    }
+    12% {
+        opacity: 1;
+        transform: scale(1.05) translateX(0);
+        filter: blur(0px);
+    }
+    18% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+        filter: blur(0px);
+    }
+    85% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+        filter: blur(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95) translateX(-70px);
+        filter: blur(2px);
+    }
+}
+
+/* Active trigger state - 2.2s duration */
+.wec-tower-transition.animating .wec-tower-trans-bg {
+    animation: wecTowerWipe 2.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.wec-tower-transition.animating .wec-tower-trans-ghost-text {
+    animation: wecTowerGhostAnim 2.2s ease forwards;
+}
+
+.wec-tower-transition.animating .wec-tower-trans-class-name {
+    animation: wecTowerTextAnim 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+

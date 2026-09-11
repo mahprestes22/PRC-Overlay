@@ -1,0 +1,853 @@
+import os
+import asyncio
+import logging
+import json
+import math
+import websockets
+from websockets.server import serve
+
+# Import do Leitor de Memória
+from pyLMUSharedMemory.lmu_mmap import MMapControl
+from pyLMUSharedMemory import lmu_data
+
+# Import utilitário para API REST
+from utils import async_fetch_json
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+SESSION_NAMES = {
+    0: "TEST DAY",
+    1: "TREINO LIVRE 1",
+    2: "TREINO LIVRE 2",
+    3: "TREINO LIVRE 3",
+    4: "TREINO LIVRE 4",
+    5: "CLASSIFICAÇÃO",
+    6: "HYPERPOLE",
+    7: "CLASSIFICAÇÃO 3",
+    8: "CLASSIFICAÇÃO 4",
+    9: "WARMUP",
+    10: "CORRIDA",
+    11: "CORRIDA 2",
+    12: "CORRIDA 3",
+    13: "CORRIDA 4"
+}
+
+GAME_PHASES = {
+    0: "PRÉ-SESSÃO",
+    1: "RECONHECIMENTO",
+    2: "GRID DE LARGADA",
+    3: "VOLTA DE APRESENTAÇÃO",
+    4: "PROCEDIMENTO DE LARGADA",
+    5: "BANDEIRA VERDE",
+    6: "SAFETY CAR / FCY",
+    7: "BANDEIRA VERMELHA",
+    8: "BANDEIRA QUADRICULADA",
+    9: "PAUSADO"
+}
+
+def normalize_class(v_class):
+    """Normaliza classes de carros para as siglas clássicas do WEC/LMU."""
+    c = v_class.upper().strip()
+    if any(k in c for k in ["HYPERCAR", "HYPER", "HY", "LMH", "LMDH"]):
+        return "HY"
+    elif "LMP2" in c:
+        return "LMP2"
+    elif any(k in c for k in ["LMGT3", "GT3"]):
+        return "LMGT3"
+    elif any(k in c for k in ["GTE", "LMGTE", "GTE-AM", "GTE-PRO"]):
+        return "LMGTE"
+    elif "LMP3" in c:
+        return "LMP3"
+    return "HY" if "HY" in c else (c[:5] if c else "HY")
+
+class LMUBackendEngine:
+    def __init__(self):
+        self.mmap_ctrl = None
+        self.secret_ws_data = {} # Armazena nomes reais e números de equipes
+        self.connected_clients = set()
+        self.game_focused_slot = -1
+        self.pit_tracker = {} # slot_id -> { in_pits, entry_et, pit_duration, out_lap, out_lap_start_lap, out_lap_time }
+        self.incidents_list = [] # Histórico de toques retornado pelo jogo
+        self.driver_yellow_tracker = {} # slot_id -> { was_yellow, last_et }
+        self.class_best_sectors = {}  # { class: { "s1": None, "s2": None, "s3": None } }
+        self.driver_best_sectors = {} # { slot_id: { "s1": None, "s2": None, "s3": None, "sector_colors": ["", "", ""] } }
+        self.yellow_flag_history = [] # Histórico em tempo real de bandeiras amarelas
+        self.standings_history_api = {} # Histórico completo de voltas por slot_id
+        self.track_map_cache = {} # Cache do traçado vetorial 2D da pista
+        self.current_camera = "tv" # Câmera ativa no momento
+        self.settings_path = os.path.join(os.path.dirname(__file__), "settings.json")
+        self.settings = self.load_settings()
+
+    def load_settings(self):
+        """Carrega configurações do arquivo settings.json"""
+        default_settings = {
+            "theme": "wec-official",
+            "auto_camera_switch": True,
+            "widgets": {
+                "tower": {"enabled": True, "x": 30, "y": 100, "scale": 1.0, "visible_cams": ["tv", "trackside", "chase", "bonnet"]},
+                "driver_banner": {"enabled": True, "x": 30, "y": 920, "scale": 1.0, "visible_cams": ["tv", "trackside", "chase", "bonnet", "cockpit", "nose"]},
+                "trackmap": {"enabled": True, "x": 1620, "y": 780, "scale": 0.85, "visible_cams": ["tv", "trackside", "chase"]},
+                "pedals": {"enabled": True, "x": 1560, "y": 880, "scale": 1.0, "visible_cams": ["cockpit", "nose", "onboard_cycle"]},
+                "battle_box": {"enabled": True, "x": 1400, "y": 100, "scale": 1.0, "visible_cams": ["tv", "trackside", "chase"]}
+            }
+        }
+        if os.path.exists(self.settings_path):
+            try:
+                with open(self.settings_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                logging.error(f"Erro ao ler settings.json: {e}")
+        return default_settings
+
+    def save_settings(self, new_settings):
+        """Salva configurações no arquivo settings.json"""
+        self.settings = new_settings
+        try:
+            with open(self.settings_path, "w", encoding="utf-8") as f:
+                json.dump(self.settings, f, indent=2, ensure_ascii=False)
+            logging.info("[Settings] Configurações salvas com sucesso!")
+        except Exception as e:
+            logging.error(f"Erro ao salvar settings.json: {e}")
+        
+    async def init_memory(self):
+        """Inicializa a conexão nativa com a Memória Compartilhada"""
+        logging.info("Conectando à Memória Compartilhada do LMU...")
+        self.mmap_ctrl = MMapControl(lmu_data.LMUConstants.LMU_SHARED_MEMORY_FILE, lmu_data.LMUObjectOut)
+        try:
+            self.mmap_ctrl.create(0) # 0 = Copy Access (mais seguro contra desync)
+            logging.info("Memória conectada com sucesso!")
+        except Exception as e:
+            logging.error(f"Erro ao conectar na memória (O jogo está aberto?): {e}")
+
+    async def listen_secret_ws(self):
+        """Conecta no WebSocket interno do jogo para pegar metadados das equipes"""
+        url = "ws://127.0.0.1:6398/websocket/controlpanel"
+        while True:
+            try:
+                async with websockets.connect(url) as ws:
+                    logging.info("[Secret WS] Conectado! Lendo nomes e números de equipes...")
+                    async for message in ws:
+                        try:
+                            data = json.loads(message)
+                            if data.get("type") == "standings":
+                                for car in data.get("body", []):
+                                    slot_id = car.get("slotID")
+                                    if slot_id is not None:
+                                        team_name = car.get("fullTeamName", "").replace("+", " ")
+                                        self.secret_ws_data[slot_id] = {
+                                            "carNumber": car.get("carNumber", ""),
+                                            "fullTeamName": team_name
+                                        }
+                        except json.JSONDecodeError:
+                            pass
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def _fast_lmu_request(self, method, path):
+        """Dispara requisição HTTP ultrarrápida via socket assíncrono nativo (~5ms)"""
+        try:
+            reader, writer = await asyncio.open_connection('127.0.0.1', 6397)
+            req = f"{method} {path} HTTP/1.1\r\nHost: 127.0.0.1:6397\r\nContent-Length: 0\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n"
+            writer.write(req.encode('ascii'))
+            await writer.drain()
+            writer.close()
+            await writer.wait_closed()
+        except Exception as e:
+            logging.error(f"[Fast Request] Erro em {method} {path}: {e}")
+
+    async def _fast_lmu_put(self, path):
+        await self._fast_lmu_request("PUT", path)
+
+    async def _fast_lmu_post(self, path):
+        await self._fast_lmu_request("POST", path)
+
+    async def poll_game_focus(self):
+        """Busca periodicamente via REST API quem é o piloto focado no momento"""
+        while True:
+            try:
+                current_slot = await async_fetch_json("http://127.0.0.1:6397/rest/watch/focus", method="GET", timeout=1.0)
+                if isinstance(current_slot, int) and current_slot >= 0:
+                    self.game_focused_slot = current_slot
+            except Exception:
+                self.game_focused_slot = -1
+            await asyncio.sleep(0.5)
+
+    async def change_lmu_focus(self, slot_id, driver_name=None, cam_type="tv"):
+        """Muda o foco da câmera no jogo para o Slot ID selecionado instantaneamente"""
+        try:
+            logging.info(f"[Camera] Mudando foco no jogo para Slot ID: {slot_id} ({driver_name or ''})")
+            self.game_focused_slot = slot_id # Update otimista imediato
+            self.current_camera = str(cam_type).lower()
+            
+            cam_urls = {
+                "tv": "4/1/true",
+                "cockpit": "2/1/true",
+                "in": "2/1/true",
+                "driving": "0/1/true",
+                "bonnet": "1/1/true",
+                "nose": "2/1/false",
+                "chase": "3/1/true",
+                "trackside": "5/1/true",
+                "onboard_cycle": "6/1/true",
+            }
+            target_path = cam_urls.get(self.current_camera, "4/1/true")
+            
+            # Executa a mudança de foco e câmera em paralelo ultrarrápido (<10ms)
+            await asyncio.gather(
+                self._fast_lmu_put(f"/rest/watch/focus/{slot_id}"),
+                self._fast_lmu_put(f"/rest/watch/focus/{target_path}"),
+                return_exceptions=True
+            )
+        except Exception as e:
+            logging.error(f"[Camera] Falha ao focar slot {slot_id}: {e}")
+
+    async def change_lmu_camera(self, cam_type="tv"):
+        """Muda o tipo de câmera ativa no jogo"""
+        try:
+            self.current_camera = str(cam_type).lower()
+            logging.info(f"[Camera] Mudando câmera para: {self.current_camera}")
+            cam_urls = {
+                "tv": "4/1/true",
+                "cockpit": "2/1/true",
+                "in": "2/1/true",
+                "driving": "0/1/true",
+                "bonnet": "1/1/true",
+                "nose": "2/1/false",
+                "chase": "3/1/true",
+                "trackside": "5/1/true",
+                "onboard_cycle": "6/1/true",
+            }
+            target_path = cam_urls.get(self.current_camera, "4/1/true")
+            await self._fast_lmu_put(f"/rest/watch/focus/{target_path}")
+        except Exception as e:
+            logging.error(f"[Camera] Falha ao mudar câmera {cam_type}: {e}")
+
+    async def poll_incidents(self):
+        """Busca periodicamente do jogo a lista oficial de toques e incidentes (a cada 2s)"""
+        while True:
+            try:
+                data = await async_fetch_json("http://127.0.0.1:6397/rest/watch/getIncidentsList/5", method="GET", timeout=2.0)
+                if isinstance(data, list):
+                    self.incidents_list = data
+            except Exception:
+                pass
+            await asyncio.sleep(2.0)
+
+    async def poll_standings_history(self):
+        """Busca periodicamente o histórico oficial de voltas da API REST (/rest/watch/standings/history)"""
+        while True:
+            try:
+                data = await async_fetch_json("http://127.0.0.1:6397/rest/watch/standings/history", method="GET", timeout=3.0)
+                if isinstance(data, dict):
+                    self.standings_history_api = data
+            except Exception:
+                pass
+            await asyncio.sleep(4.0)
+
+    async def poll_track_map(self):
+        """Busca o traçado oficial (tipo 0) e o traçado contínuo do pitlane (tipo 1) da API REST (/rest/watch/trackmap)"""
+        while True:
+            try:
+                data = await async_fetch_json("http://127.0.0.1:6397/rest/watch/trackmap", method="GET", timeout=3.0)
+                if isinstance(data, list) and len(data) > 10:
+                    main_pts = [p for p in data if p.get("type") == 0]
+                    pit_pts = [p for p in data if p.get("type") == 1]
+                    
+                    if not main_pts:
+                        main_pts = data
+
+                    # Segmentação do Pitlane: detecta pulos > 25m para isolar a linha oficial do pit lane e descartar garagens
+                    main_pit_segment = []
+                    if pit_pts:
+                        pit_segments = []
+                        current_seg = [pit_pts[0]]
+                        for i in range(1, len(pit_pts)):
+                            p1 = pit_pts[i-1]
+                            p2 = pit_pts[i]
+                            d = math.sqrt((p2["x"] - p1["x"])**2 + (p2["z"] - p1["z"])**2)
+                            if d > 25.0:
+                                pit_segments.append(current_seg)
+                                current_seg = [p2]
+                            else:
+                                current_seg.append(p2)
+                        pit_segments.append(current_seg)
+                        
+                        # O traçado oficial do pitlane é sempre o segmento contínuo mais longo
+                        if pit_segments:
+                            main_pit_segment = max(pit_segments, key=len)
+
+                    all_valid = main_pts + main_pit_segment
+                    xs = [p["x"] for p in all_valid]
+                    ys = [-p["z"] for p in all_valid] # Inverte Z para o Y da tela respeitar o sentido real da pista
+                    
+                    # Margem ampla (120m) para as bolinhas dos carros nunca ficarem cortadas nas bordas
+                    pad = 120.0
+                    min_x = min(xs) - pad
+                    max_x = max(xs) + pad
+                    min_y = min(ys) - pad
+                    max_y = max(ys) + pad
+                    w = max_x - min_x
+                    h = max_y - min_y
+                    
+                    # Traçado Principal (tipo 0)
+                    sampled_main = main_pts[::2]
+                    d_parts_main = [f"{round(p['x'], 1)} {round(-p['z'], 1)}" for p in sampled_main]
+                    main_d = "M " + " L ".join(d_parts_main) + " Z"
+                    
+                    # Traçado Oficial do Pitlane (linha contínua pura)
+                    pit_d = ""
+                    if main_pit_segment:
+                        sampled_pit = main_pit_segment[::2]
+                        d_parts_pit = [f"{round(p['x'], 1)} {round(-p['z'], 1)}" for p in sampled_pit]
+                        pit_d = "M " + " L ".join(d_parts_pit)
+                    
+                    self.track_map_cache = {
+                        "main_d": main_d,
+                        "pit_d": pit_d,
+                        "viewBox": f"{round(min_x, 1)} {round(min_y, 1)} {round(w, 1)} {round(h, 1)}"
+                    }
+            except Exception:
+                pass
+            await asyncio.sleep(8.0)
+
+    async def jump_to_replay(self, slot_id, target_time):
+        """Pula para um momento específico no replay (4s antes) com ativação de Replay Mode, TV Cam e Play"""
+        try:
+            target_time_rounded = max(0.0, round(float(target_time) - 4.0, 1))
+            logging.info(f"[Replay] Pulando para {target_time_rounded}s (4s antes do evento {target_time}s) | Slot: {slot_id}")
+            
+            # 1. Garante que o modo de replay está ativo no jogo
+            try:
+                is_active = await async_fetch_json("http://127.0.0.1:6397/rest/replay/isActive", method="GET", timeout=1.0)
+                if not is_active:
+                    logging.info("[Replay] Ativando Replay Mode no LMU...")
+                    await self._fast_lmu_post("/rest/replay/toggleactive")
+                    await asyncio.sleep(0.3)
+            except Exception:
+                pass
+            
+            # 2. Foca no piloto se informado
+            if slot_id is not None:
+                await self._fast_lmu_put(f"/rest/watch/focus/{slot_id}")
+                self.game_focused_slot = int(slot_id)
+                
+            # 3. Pula no tempo de replay
+            await self._fast_lmu_put(f"/rest/watch/replaytime/{target_time_rounded}")
+            
+            # 4. Ativa TV Cam
+            await self._fast_lmu_put("/rest/watch/focus/4/1/true")
+            
+            # 5. Dá Play
+            await self._fast_lmu_put("/rest/watch/replayCommand/play")
+        except Exception as e:
+            logging.error(f"[Replay] Falha ao pular replay: {e}")
+
+    async def return_to_live(self):
+        """Retorna a câmera para o momento ao vivo da corrida desativando o modo replay"""
+        try:
+            logging.info("[Replay] Retornando para o tempo real (Live)")
+            try:
+                is_active = await async_fetch_json("http://127.0.0.1:6397/rest/replay/isActive", method="GET", timeout=1.0)
+                if is_active:
+                    await self._fast_lmu_post("/rest/replay/toggleactive")
+            except Exception:
+                pass
+            await self._fast_lmu_put("/rest/sessions/returnToMonitor")
+            await self._fast_lmu_put("/rest/watch/replayCommand/play")
+        except Exception as e:
+            logging.error(f"[Replay] Falha ao retornar para Live: {e}")
+
+    async def change_lmu_camera(self, cam_type):
+        """Muda o tipo de câmera no jogo (TV, Cockpit, Trackside, etc.) instantaneamente"""
+        try:
+            cam_urls = {
+                "tv": "4/1/true",
+                "cockpit": "2/1/true",
+                "in": "2/1/true",
+                "driving": "0/1/true",
+                "bonnet": "1/1/true",
+                "nose": "2/1/false",
+                "chase": "3/1/true",
+                "trackside": "5/1/true",
+                "onboard_cycle": "6/1/true",
+            }
+            target_path = cam_urls.get(str(cam_type).lower(), cam_type)
+            logging.info(f"[Camera] Mudando câmera para: {cam_type} ({target_path})")
+            await self._fast_lmu_put(f"/rest/watch/focus/{target_path}")
+        except Exception as e:
+            logging.error(f"[Camera] Falha ao mudar câmera para {cam_type}: {e}")
+
+    async def broadcast_loop(self):
+        """Loop infinito que junta Memória + Secret WS e envia para o Overlay Web"""
+        while True:
+            if self.mmap_ctrl:
+                self.mmap_ctrl.update() # Puxa o frame atual da Shared Memory
+                
+                # Verifica se o jogo está ativo e carregado
+                if self.mmap_ctrl.data.generic.gameVersion:
+                    scoring_info = self.mmap_ctrl.data.scoring.scoringInfo
+                    cars = scoring_info.mNumVehicles
+                    current_et = scoring_info.mCurrentET
+                    
+                    # Mapeia telemetria por ID de slot
+                    tele_map = {}
+                    active_vehicles = self.mmap_ctrl.data.telemetry.activeVehicles
+                    for k in range(active_vehicles):
+                        v_tele = self.mmap_ctrl.data.telemetry.telemInfo[k]
+                        tele_map[v_tele.mID] = v_tele
+                    
+                    standings = []
+                    for i in range(cars):
+                        v_score = self.mmap_ctrl.data.scoring.vehScoringInfo[i]
+                        slot_id = v_score.mID
+                        
+                        # Decodifica strings
+                        d_name = v_score.mDriverName.decode('utf-8', errors='ignore').strip('\x00')
+                        veh_name = v_score.mVehicleName.decode('utf-8', errors='ignore').strip('\x00')
+                        v_class_raw = v_score.mVehicleClass.decode('utf-8', errors='ignore').strip('\x00')
+                        car_class = normalize_class(v_class_raw)
+                        
+                        # Busca no WebSocket as infos reais de equipe/número
+                        ws_meta = self.secret_ws_data.get(slot_id, {})
+                        team_name = ws_meta.get("fullTeamName", veh_name)
+                        car_number = ws_meta.get("carNumber", "")
+                        
+                        # Cálculo de Velocidade em KM/H
+                        vx = v_score.mLocalVel.x
+                        vy = v_score.mLocalVel.y
+                        vz = v_score.mLocalVel.z
+                        speed_kmh = round(math.sqrt(vx**2 + vy**2 + vz**2) * 3.6, 1)
+                        
+                        # Rastreamento de Boxes, Garagem e Out-Lap
+                        in_pits = bool(v_score.mInPits)
+                        pit_state = int(v_score.mPitState)
+                        total_laps = int(v_score.mTotalLaps)
+                        
+                        # Detecção de Garagem (parado na vaga da garagem)
+                        in_garage = bool(v_score.mInGarageStall) or (in_pits and pit_state == 0 and speed_kmh < 5.0)
+                        
+                        if slot_id not in self.pit_tracker:
+                            self.pit_tracker[slot_id] = {
+                                "in_pits": in_pits,
+                                "entry_et": current_et if in_pits else 0.0,
+                                "pit_duration": 0.0,
+                                "out_lap": False,
+                                "out_lap_start_lap": 0,
+                                "out_lap_time": 0.0
+                            }
+                        
+                        pdata = self.pit_tracker[slot_id]
+                        
+                        # Entrada no pit lane
+                        if in_pits and not pdata["in_pits"]:
+                            pdata["in_pits"] = True
+                            pdata["entry_et"] = current_et
+                            pdata["out_lap"] = False
+                        
+                        # Saída do pit lane (início da Out Lap)
+                        elif not in_pits and pdata["in_pits"]:
+                            pdata["in_pits"] = False
+                            if pdata["entry_et"] > 0:
+                                pdata["pit_duration"] = round(current_et - pdata["entry_et"], 1)
+                            pdata["out_lap"] = True
+                            pdata["out_lap_start_lap"] = total_laps
+                            pdata["out_lap_time"] = current_et
+                        
+                        # Limpa out_lap quando completar volta ou após 120s
+                        if pdata["out_lap"]:
+                            if total_laps > pdata["out_lap_start_lap"] or (current_et - pdata.get("out_lap_time", current_et)) > 120.0:
+                                pdata["out_lap"] = False
+                        
+                        # Detecção de Yellow Flag individual / incidente na pista
+                        is_yellow_flag = False
+                        if not in_pits and not in_garage and current_et > 5.0:
+                            # Carro rodado, muito lento (< 45 km/h) ou com bandeira amarela mostrada para ele
+                            if speed_kmh < 45.0 or bool(v_score.mUnderYellow) or (int(v_score.mFlag) == 1):
+                                is_yellow_flag = True
+                        
+                        # Rastreamento de histórico de Bandeiras Amarelas
+                        sec_val = int(v_score.mSector)
+                        sec_name = "S1" if sec_val == 1 else "S2" if sec_val == 2 else "S3"
+                        tracker = self.driver_yellow_tracker.setdefault(slot_id, {"was_yellow": False, "last_et": 0.0})
+                        if is_yellow_flag:
+                            if not tracker["was_yellow"] or (current_et - tracker["last_et"] > 25.0):
+                                tracker["was_yellow"] = True
+                                tracker["last_et"] = current_et
+                                self.yellow_flag_history.append({
+                                    "type": "YELLOW_FLAG",
+                                    "player": d_name,
+                                    "contactWith": f"Amarela ({sec_name})",
+                                    "et": round(current_et, 2),
+                                    "sector": sec_name
+                                })
+                        else:
+                            tracker["was_yellow"] = False
+                        
+                        # Definição de Status conforme regras solicitadas
+                        is_focused = (slot_id == self.game_focused_slot)
+                        pit_time_val = pdata.get("pit_duration", 0.0)
+                        
+                        if in_garage:
+                            status_code = "GARAGE"
+                            status_text = "GARAGE"
+                        elif in_pits:
+                            if pit_state == 2:
+                                status_code = "PIT_IN"
+                                status_text = "PIT IN"
+                            elif pit_state == 3: # Parado no box
+                                status_code = "PIT"
+                                status_text = "PIT"
+                            elif pit_state in (4, 5): # Saindo da vaga / percorrendo saída
+                                status_code = "PIT_OUT"
+                                status_text = "PIT OUT"
+                            else:
+                                status_code = "PIT_IN"
+                                status_text = "PIT IN"
+                        elif pit_state == 1:
+                            status_code = "REQ"
+                            status_text = "REQ"
+                        elif pdata["out_lap"]:
+                            status_code = "PIT_OUT"
+                            if pit_time_val > 0:
+                                status_text = f"PIT OUT ({pit_time_val:.1f}s)"
+                            else:
+                                status_text = "PIT OUT"
+                        elif is_yellow_flag:
+                            status_code = "YELLOW_FLAG"
+                            status_text = "YELLOW"
+                        else:
+                            if is_focused:
+                                status_code = "ON_AIR"
+                                status_text = "ON AIR"
+                            else:
+                                status_code = "ON_TRACK"
+                                status_text = "ON TRACK"
+                        
+                        # Pneus (FL, FR, RL, RR)
+                        tires = {}
+                        v_tele = tele_map.get(slot_id)
+                        virtual_energy = 0.0
+                        fuel_pct = 0.0
+                        if v_tele:
+                            id_map = {0: "Soft", 1: "Medium", 2: "Hard", 3: "Wet"}
+                            tires = {
+                                "FL": {
+                                    "compound": id_map.get(v_tele.mWheels[0].mCompoundType, "Unknown"),
+                                    "wear_pct": round(v_tele.mWheels[0].mWear * 100, 1)
+                                },
+                                "FR": {
+                                    "compound": id_map.get(v_tele.mWheels[1].mCompoundType, "Unknown"),
+                                    "wear_pct": round(v_tele.mWheels[1].mWear * 100, 1)
+                                },
+                                "RL": {
+                                    "compound": id_map.get(v_tele.mWheels[2].mCompoundType, "Unknown"),
+                                    "wear_pct": round(v_tele.mWheels[2].mWear * 100, 1)
+                                },
+                                "RR": {
+                                    "compound": id_map.get(v_tele.mWheels[3].mCompoundType, "Unknown"),
+                                    "wear_pct": round(v_tele.mWheels[3].mWear * 100, 1)
+                                }
+                            }
+                            # Energia Virtual (Hypercars) - mVirtualEnergy é fração 0.0-1.0
+                            ve = getattr(v_tele, 'mVirtualEnergy', 0.0)
+                            virtual_energy = round(ve * 100, 1) if ve > 0 else 0.0
+                            # Combustível como % da capacidade
+                            cap = v_tele.mFuelCapacity if v_tele.mFuelCapacity > 0 else 1.0
+                            fuel_pct = round((v_tele.mFuel / cap) * 100, 1)
+
+                            # Cálculo do Dano Total do Veículo (0% = Íntegro, 100% = Destruído)
+                            dent_sum = sum(list(v_tele.mDentSeverity))
+                            # 8 zonas x gravidade máx (3) = 24 pontos = até 60% de dano de lataria/impacto
+                            dent_dmg = (dent_sum / 24.0) * 60.0
+                            body_detached_dmg = 25.0 if bool(v_tele.mDetached) else 0.0
+                            flat_dmg = sum(15.0 for w in v_tele.mWheels if bool(w.mFlat))
+                            wheel_detached_dmg = sum(50.0 for w in v_tele.mWheels if bool(w.mDetached))
+                            total_damage = min(100.0, round(dent_dmg + body_detached_dmg + flat_dmg + wheel_detached_dmg, 0))
+                        else:
+                            total_damage = 0.0
+                        
+                        # Fallback de energia: usa fuel_pct para não-hypercars
+                        energy_display = virtual_energy if virtual_energy > 0 else fuel_pct
+
+                        # Cálculo da Média das últimas 5 voltas (AVG 5 LAPS)
+                        driver_laps = []
+                        hist_list = self.standings_history_api.get(str(slot_id), [])
+                        if hist_list:
+                            for item in hist_list:
+                                lt = float(item.get("lapTime", -1.0))
+                                pit = bool(item.get("pitting", False))
+                                if lt > 15.0 and not pit:
+                                    driver_laps.append(lt)
+                        
+                        last_lt = float(v_score.mLastLapTime)
+                        if last_lt > 15.0 and (not driver_laps or abs(driver_laps[-1] - last_lt) > 0.001):
+                            driver_laps.append(last_lt)
+
+                        recent_5 = driver_laps[-5:]
+                        avg_5_laps = round(sum(recent_5) / len(recent_5), 3) if recent_5 else 0.0
+                        
+                        # Rastreamento oficial de Setores (S1, S2, S3) e cores (purple, green, yellow)
+                        if car_class not in self.class_best_sectors:
+                            self.class_best_sectors[car_class] = {"s1": None, "s2": None, "s3": None}
+                        cls_best = self.class_best_sectors[car_class]
+                        
+                        if slot_id not in self.driver_best_sectors:
+                            self.driver_best_sectors[slot_id] = {
+                                "s1": None, "s2": None, "s3": None,
+                                "sector_colors": ["", "", ""],
+                                "last_sec": int(v_score.mSector),
+                                "last_laps": total_laps
+                            }
+                        drv_best = self.driver_best_sectors[slot_id]
+                        sec_num = int(v_score.mSector) # 1 = S1, 2 = S2, 3 = S3
+                        
+                        # Limpa volta em out-lap ou nova volta
+                        if total_laps > drv_best["last_laps"]:
+                            drv_best["last_laps"] = total_laps
+                            # Setor 3 concluído na volta anterior
+                            last_lt = float(v_score.mLastLapTime)
+                            last_s2_accum = float(v_score.mLastSector2)
+                            if last_lt > 0 and last_s2_accum > 0:
+                                s3_time = last_lt - last_s2_accum
+                                if s3_time > 0:
+                                    if cls_best["s3"] is None or s3_time <= cls_best["s3"]:
+                                        cls_best["s3"] = s3_time
+                                        drv_best["sector_colors"][2] = "purple"
+                                    elif drv_best["s3"] is None or s3_time <= drv_best["s3"]:
+                                        drv_best["s3"] = s3_time
+                                        drv_best["sector_colors"][2] = "green"
+                                    else:
+                                        drv_best["sector_colors"][2] = "yellow"
+
+                        if sec_num == 1 and drv_best["last_sec"] != 1:
+                            drv_best["sector_colors"] = ["", "", ""]
+                        elif sec_num == 2 and drv_best["last_sec"] == 1:
+                            # S1 concluído
+                            cur_s1 = float(v_score.mCurSector1)
+                            if cur_s1 > 0:
+                                if cls_best["s1"] is None or cur_s1 <= cls_best["s1"]:
+                                    cls_best["s1"] = cur_s1
+                                    drv_best["sector_colors"][0] = "purple"
+                                elif drv_best["s1"] is None or cur_s1 <= drv_best["s1"]:
+                                    drv_best["s1"] = cur_s1
+                                    drv_best["sector_colors"][0] = "green"
+                                else:
+                                    drv_best["sector_colors"][0] = "yellow"
+                        elif sec_num == 3 and drv_best["last_sec"] == 2:
+                            # S2 concluído
+                            cur_s1 = float(v_score.mCurSector1)
+                            cur_s2_accum = float(v_score.mCurSector2)
+                            if cur_s2_accum > 0 and cur_s1 > 0:
+                                cur_s2 = cur_s2_accum - cur_s1
+                                if cur_s2 > 0:
+                                    if cls_best["s2"] is None or cur_s2 <= cls_best["s2"]:
+                                        cls_best["s2"] = cur_s2
+                                        drv_best["sector_colors"][1] = "purple"
+                                    elif drv_best["s2"] is None or cur_s2 <= drv_best["s2"]:
+                                        drv_best["s2"] = cur_s2
+                                        drv_best["sector_colors"][1] = "green"
+                                    else:
+                                        drv_best["sector_colors"][1] = "yellow"
+                        drv_best["last_sec"] = sec_num
+
+                        # Formatação de Nome Oficial WEC: Remove primeiro nome e mantém sobrenome/tag
+                        name_parts = d_name.strip().split(" ", 1)
+                        formatted_name = name_parts[1].upper() if len(name_parts) > 1 else d_name.upper()
+
+                        standings.append({
+                            "slotID": slot_id,
+                            "driverName": d_name,
+                            "driverNameFormatted": formatted_name,
+                            "teamName": team_name,
+                            "carNumber": car_number,
+                            "carClass": car_class,
+                            "vehicleFilename": ws_meta.get("vehicleFilename", veh_name),
+                            "speedKmh": speed_kmh,
+                            "place": v_score.mPlace,
+                            "lap": v_score.mTotalLaps,
+                            "inPits": in_pits,
+                            "inGarage": in_garage,
+                            "pitState": pit_state,
+                            "statusCode": status_code,
+                            "statusText": status_text,
+                            "isYellowFlag": is_yellow_flag,
+                            "pitDuration": pit_time_val,
+                            "isFocused": is_focused,
+                            "tires": tires,
+                            "damagePct": int(total_damage),
+                            "bestLapTime": v_score.mBestLapTime,
+                            "lastLapTime": v_score.mLastLapTime,
+                            "avg5Laps": avg_5_laps,
+                            "gapToLeader": v_score.mTimeBehindLeader,
+                            "gapToNext": v_score.mTimeBehindNext,
+                            "sectorColors": list(drv_best["sector_colors"]),
+                            "posX": round(float(v_score.mPos.x), 1),
+                            "posY": round(float(-v_score.mPos.z), 1),
+                            "virtualEnergy": energy_display,
+                            "fuelPct": fuel_pct
+                        })
+                    
+                    # Garante ordenação correta pela posição na pista
+                    standings.sort(key=lambda x: x["place"])
+                    
+                    session_num = scoring_info.mSession
+                    is_race = (session_num >= 5)
+
+                    # Calcula a posição dentro de cada classe (POS CLAS) e Gaps
+                    class_counters = {}
+                    class_leaders = {}
+                    class_prev_car = {}  # Último carro processado de cada classe (para INT por classe)
+                    
+                    for i, car in enumerate(standings):
+                        c_cls = car.get("carClass", "HY")
+                        class_counters[c_cls] = class_counters.get(c_cls, 0) + 1
+                        car["classPlace"] = class_counters[c_cls]
+
+                        # Cálculo de GAP CLAS
+                        if c_cls not in class_leaders:
+                            class_leaders[c_cls] = car
+                            car["gapClass"] = "LÍDER"
+                        else:
+                            leader_car = class_leaders[c_cls]
+                            laps_behind = leader_car["lap"] - car["lap"]
+                            if laps_behind > 0:
+                                car["gapClass"] = f"+{laps_behind}V" if laps_behind == 1 else f"+{laps_behind}Vs"
+                            else:
+                                gap = car["gapToLeader"] - leader_car["gapToLeader"]
+                                car["gapClass"] = f"+{gap:.3f}s" if gap > 0 else (f"+{car['gapToNext']:.3f}s" if car['gapToNext'] > 0 else "—")
+
+                        # Cálculo de INT (Intervalo) — SEMPRE POR CLASSE
+                        if is_race:
+                            # Corrida: INT por classe usando gap real na pista
+                            if c_cls not in class_prev_car:
+                                car["gapInterval"] = "—"
+                            else:
+                                prev_car = class_prev_car[c_cls]
+                                laps_diff = prev_car["lap"] - car["lap"]
+                                if laps_diff > 0:
+                                    car["gapInterval"] = f"+{laps_diff}V" if laps_diff == 1 else f"+{laps_diff}Vs"
+                                else:
+                                    gap = car["gapToLeader"] - prev_car["gapToLeader"]
+                                    car["gapInterval"] = f"+{gap:.3f}s" if gap > 0 else (f"+{car['gapToNext']:.3f}s" if car['gapToNext'] > 0 else "—")
+                            # Na corrida, sempre atualiza (mesmo sem volta, a posição na pista é relevante)
+                            class_prev_car[c_cls] = car
+                        else:
+                            # Treino / Quali: INT por classe usando BestLap
+                            if c_cls not in class_prev_car or car["bestLapTime"] <= 0:
+                                car["gapInterval"] = "—"
+                            else:
+                                prev_best = class_prev_car[c_cls]["bestLapTime"]
+                                if prev_best > 0 and car["bestLapTime"] > 0:
+                                    diff = car["bestLapTime"] - prev_best
+                                    car["gapInterval"] = f"+{diff:.3f}" if diff >= 0 else f"{diff:.3f}"
+                                else:
+                                    car["gapInterval"] = "—"
+                            # Treino/Quali: só atualiza se o carro tem tempo válido
+                            # Assim carros sem tempo não "quebram a corrente" do intervalo
+                            if car["bestLapTime"] > 0:
+                                class_prev_car[c_cls] = car
+                    
+                    # Informações de Sessão e Pista
+                    track_name = scoring_info.mTrackName.decode('utf-8', errors='ignore').strip('\x00')
+                    session_name = SESSION_NAMES.get(session_num, "TREINO LIVRE" if session_num < 5 else "CORRIDA")
+                    phase_num = scoring_info.mGamePhase
+                    phase_name = GAME_PHASES.get(phase_num, "BANDEIRA VERDE")
+                    time_remaining = float(scoring_info.mSessionTimeRemaining) if hasattr(scoring_info, 'mSessionTimeRemaining') else 0.0
+
+                    # Bandeiras e FCY
+                    # mSectorFlag: 1 ou 2 = Amarela no setor; 0 ou 11 = Verde/Livre
+                    sector_yellows = [bool(int(f) in (1, 2)) for f in scoring_info.mSectorFlag]
+                    yf_state = scoring_info.mYellowFlagState
+                    yf_val = yf_state[0] if isinstance(yf_state, bytes) else ord(yf_state) if isinstance(yf_state, str) else int(yf_state)
+                    
+                    combined_incidents = sorted(self.incidents_list + self.yellow_flag_history, key=lambda x: x.get("et", 0))
+                    
+                    payload = {
+                        "type": "telemetry_update",
+                        "track_name": track_name,
+                        "session_id": session_num,
+                        "session_name": session_name,
+                        "is_race": is_race,
+                        "session_time_remaining": time_remaining,
+                        "game_phase": phase_num,
+                        "game_phase_name": phase_name,
+                        "yellow_flag_state": yf_val,
+                        "sector_yellows": sector_yellows,
+                        "focused_slot_id": self.game_focused_slot,
+                        "current_camera": self.current_camera,
+                        "settings": self.settings,
+                        "standings": standings,
+                        "incidents": combined_incidents,
+                        "track_map": self.track_map_cache
+                    }
+                    # Dispara via Websocket
+                    if self.connected_clients:
+                        msg = json.dumps(payload)
+                        await asyncio.gather(*[client.send(msg) for client in self.connected_clients], return_exceptions=True)
+                        
+                    # Feedback periódico no terminal a cada ~10s
+                    if getattr(self, '_print_counter', 0) % 300 == 0:
+                        logging.info(f"LOG -> Sessão: {session_name} ({phase_name}) | Câmera: {self.current_camera} | Foco: Slot {self.game_focused_slot} | Carros: {cars} | Incidentes/Amarelas: {len(combined_incidents)}")
+                    self._print_counter = getattr(self, '_print_counter', 0) + 1
+            
+            await asyncio.sleep(1/30) # 30Hz
+
+    async def overlay_handler(self, websocket):
+        """Gerencia mensagens recebidas do frontend (Cliques do narrador e comandos do overlay)"""
+        self.connected_clients.add(websocket)
+        logging.info("Membro da equipe de transmissão conectou ao WebSocket!")
+        try:
+            async for message in websocket:
+                try:
+                    data = json.loads(message)
+                    action = data.get("action")
+                    if action == "camera_focus":
+                        slot_id = data.get("slotID")
+                        driver_name = data.get("driverName")
+                        cam_type = data.get("cameraType", "tv")
+                        if slot_id is not None:
+                            asyncio.create_task(self.change_lmu_focus(int(slot_id), driver_name, cam_type))
+                    elif action == "change_camera":
+                        cam_type = data.get("camera")
+                        if cam_type:
+                            asyncio.create_task(self.change_lmu_camera(cam_type))
+                    elif action == "jump_replay":
+                        slot_id = data.get("slotID")
+                        target_time = data.get("targetTime", 0)
+                        asyncio.create_task(self.jump_to_replay(slot_id, target_time))
+                    elif action == "return_live":
+                        asyncio.create_task(self.return_to_live())
+                    elif action == "save_settings":
+                        new_settings = data.get("settings")
+                        if new_settings and isinstance(new_settings, dict):
+                            self.save_settings(new_settings)
+                    elif action == "update_widget":
+                        widget_name = data.get("widget")
+                        widget_data = data.get("data")
+                        if widget_name and widget_data and "widgets" in self.settings:
+                            self.settings["widgets"][widget_name] = widget_data
+                            self.save_settings(self.settings)
+                except json.JSONDecodeError:
+                    pass
+                except Exception as e:
+                    logging.error(f"Erro ao processar instrução da mesa de transmissão: {e}")
+        finally:
+            self.connected_clients.remove(websocket)
+
+    async def run(self):
+        await self.init_memory()
+        
+        logging.info("Servidor de Transmissão rodando na porta 8989...")
+        async with serve(self.overlay_handler, "127.0.0.1", 8989):
+            await asyncio.gather(
+                self.listen_secret_ws(),
+                self.poll_game_focus(),
+                self.poll_incidents(),
+                self.poll_standings_history(),
+                self.poll_track_map(),
+                self.broadcast_loop()
+            )
+
+if __name__ == "__main__":
+    engine = LMUBackendEngine()
+    asyncio.run(engine.run())

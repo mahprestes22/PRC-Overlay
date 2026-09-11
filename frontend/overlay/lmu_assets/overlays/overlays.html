@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="overlaysApp" class="overlays-app">
+<head>
+    <meta charset="UTF-8">
+    <script src="src/lib/angular.min.js"></script>
+    <script src="src/lib/angular-animate.js"></script>
+    <script src="src/lib/lodash.min.js"></script>
+    <script src="src/lib/Snap.svg/dist/snap.svg-min.js"></script>
+    <script src="src/services/BroadcastService.js"></script>
+    <script src="src/services/SessionService.js"></script>
+    <script src="src/services/StandingsService.js"></script>
+    <script src="src/services/UtilService.js"></script>
+    <script src="src/services/VehicleInfoService.js"></script>
+    <script src="src/overlays.js"></script>
+    <script src="src/DrawHudCanvas.js"></script>
+    <script src="src/components/driverinfooverlay/DriverInfoOverlay.js"></script>
+    <script src="src/components/onboarddriverbox/OnboardDriverBoxOverlay.js"></script>
+    <script src="src/components/battleboxoverlay/BattleBoxOverlay.js"></script>
+    <script src="src/components/brolloverlay/BrollOverlay.js"></script>
+    <script src="src/components/condensetext/CondenseText.js"></script>
+    <script src="src/components/countdownoverlay/CountdownOverlay.js"></script>
+    <script src="src/components/dynamicdatafield/DynamicDataField.js"></script>
+    <script src="src/components/entrydatafield/EntryDataField.js"></script>
+    <script src="src/components/entryinfo/EntryInfo.js"></script>
+    <script src="src/components/entrynamefield/EntryNameField.js"></script>
+    <script src="src/components/eventslideoverlay/EventSlideOverlay.js"></script>
+    <script src="src/components/extendedbattleboxoverlay/ExtendedBattleBoxOverlay.js"></script>
+    <script src="src/components/focusindicator/FocusIndicator.js"></script>
+    <script src="src/components/inraceseasonstandingsoverlay/InraceSeasonStandingsOverlay.js"></script>
+    <script src="src/components/introslideoverlay/IntroSlideOverlay.js"></script>
+    <script src="src/components/sessionresultsoverlay/SessionResultsOverlay.js"></script>
+    <script src="src/components/positionfield/PositionField.js"></script>
+    <script src="src/components/qualifyingboxoverlay/QualifyingBoxOverlay.js"></script>
+    <script src="src/components/raceupdateoverlay/RaceUpdateOverlay.js"></script>
+    <script src="src/components/replaytransitionoverlay/ReplayTransitionOverlay.js"></script>
+    <script src="src/components/schedulelist/ScheduleList.js"></script>
+    <script src="src/components/scheduleslideoverlay/ScheduleSlideOverlay.js"></script>
+    <script src="src/components/seasonstandingsoverlay/SeasonStandingsOverlay.js"></script>
+    <script src="src/components/sessioninfooverlay/SessionInfoOverlay.js"></script>
+    <script src="src/components/standingstickeroverlay/StandingsTickerOverlay.js"></script>
+    <script src="src/components/standingstoweroverlay/StandingsTowerOverlay.js"></script>
+    <script src="src/components/startingorderoverlay/StartingOrderOverlay.js"></script>
+    <script src="src/components/trackmap/TrackMap.js"></script>
+    <script src="src/components/videoslideoverlay/VideoSlideOverlay.js"></script>
+    <script src="src/components/partnerimages/PartnerImages.js"></script>
+    <script src="src/components/resultheader/ResultHeader.js"></script>
+    <script src="src/components/gridheader/GridHeader.js"></script>
+    <script src="src/components/onsrcerror/OnSrcError.js"></script>
+    <link rel="stylesheet" href="src/css/app.css">
+    <link rel="stylesheet" href="src/css/fonts.css">
+    <link rel="stylesheet" href="src/css/overlays.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="src/components/driverinfooverlay/_driverinfooverlay.css">
+    <link rel="stylesheet" href="src/components/onboarddriverbox/_onboarddriverboxoverlay.css">
+    <link rel="stylesheet" href="src/components/battleboxoverlay/_battleboxoverlay.css">
+    <link rel="stylesheet" href="src/components/brolloverlay/_brolloverlay.css">
+    <link rel="stylesheet" href="src/components/countdownoverlay/_countdownoverlay.css">
+    <link rel="stylesheet" href="src/components/entryinfo/_entryinfo.css">
+    <link rel="stylesheet" href="src/components/eventslideoverlay/_eventslideoverlay.css">
+    <link rel="stylesheet" href="src/components/extendedbattleboxoverlay/_extendedbattleboxoverlay.css">
+    <link rel="stylesheet" href="src/components/focusindicator/_focusindicator.css">
+    <link rel="stylesheet" href="src/components/inraceseasonstandingsoverlay/_inraceseasonstandingsoverlay.css">
+    <link rel="stylesheet" href="src/components/introslideoverlay/_introslideoverlay.css">
+    <link rel="stylesheet" href="src/components/sessionresultsoverlay/_sessionresults.css">
+    <link rel="stylesheet" href="src/components/sessioninfooverlay/_sessioninfooverlay.css">
+    <link rel="stylesheet" href="src/components/qualifyingboxoverlay/_qualifyingboxoverlay.css">
+    <link rel="stylesheet" href="src/components/raceupdateoverlay/_raceupdateoverlay.css">
+    <link rel="stylesheet" href="src/components/replaytransitionoverlay/_replaytransitionoverlay.css">
+    <link rel="stylesheet" href="src/components/schedulelist/_schedulelist.css">
+    <link rel="stylesheet" href="src/components/scheduleslideoverlay/_scheduleslideoverlay.css">
+    <link rel="stylesheet" href="src/components/seasonstandingsoverlay/_seasonstandingsoverlay.css">
+    <link rel="stylesheet" href="src/components/standingstickeroverlay/_standingstickeroverlay.css">
+    <link rel="stylesheet" href="src/components/standingstoweroverlay/_standingstoweroverlay.css">
+    <link rel="stylesheet" href="src/components/startingorderoverlay/_startingorder.css">
+    <link rel="stylesheet" href="src/components/trackmap/trackmap.css">
+    <link rel="stylesheet" href="src/components/videoslideoverlay/_videoslideoverlay.css">
+    <link rel="stylesheet" href="src/components/partnerimages/_partnerimages.css">
+    <link rel="stylesheet" href="src/components/resultheader/_resultheader.css">
+    <link rel="stylesheet" href="src/components/gridheader/_gridheader.css">
+</head>
+<body ng-controller="OverlaysController as overlaysCtrl" ng-class="[overlaysCtrl.sessionType + '-session']">
+<link ng-if="overlaysCtrl.overlays.selectedCustomOverlay"
+      rel="stylesheet"
+      ng-href="customize/{{ overlaysCtrl.overlays.selectedCustomOverlay }}/custom.css"
+>
+<div class="overlays-wrapper">
+    <div ng-if="overlaysCtrl.overlays.inraceSeasonStandings.visible"
+         class="inrace-season-standings-overlay-container overlay-swipe-container"
+    >
+        <inrace-season-standings-overlay overlay-info="overlaysCtrl.overlays.inraceSeasonStandings"
+                                         config="overlaysCtrl.config"
+                                         custom-config="overlaysCtrl.customConfig"
+                                         standings="overlaysCtrl.seasonStandings.standings"
+                                         entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                         selected-name-type="overlaysCtrl.overlays.standingsTower.showName"
+                                         driver-name-type-id="overlaysCtrl.overlays.standingsTower.driverNameTypeId"
+                                         cars="overlaysCtrl.cars"
+        >
+        </inrace-season-standings-overlay>
+        <div class="overlay-swipe"
+             ng-class="overlaysCtrl.getCssCarClassName(overlaysCtrl.overlays.inraceSeasonStandings.settings.selectedCarClass)"
+             ng-style="overlaysCtrl.getCarClassSwipeStyle(overlaysCtrl.overlays.inraceSeasonStandings.settings.selectedCarClass, 'backgroundColor')"
+        >
+        </div>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.scheduleSlide.visible" class="schedule-slide-overlay-container">
+        <schedule-slide-overlay overlay-info="overlaysCtrl.overlays.scheduleSlide"
+                                config="overlaysCtrl.config"
+                                custom-config="overlaysCtrl.customConfig"
+                                schedule="overlaysCtrl.schedule"
+        >
+        </schedule-slide-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.seasonStandings.visible" class="season-standings-overlay-container">
+        <season-standings-overlay overlay-info="overlaysCtrl.overlays.seasonStandings"
+                                  config="overlaysCtrl.config"
+                                  custom-config="overlaysCtrl.customConfig"
+                                  season-standings="overlaysCtrl.seasonStandings"
+                                  cars="overlaysCtrl.cars"
+                                  entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                  selected-entry-info="overlaysCtrl.overlays.driverInfo.settings.entryInfo"
+        >
+        </season-standings-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.sessionResults.visible" class="session-results-overlay">
+        <session-results-overlay overlay-info="overlaysCtrl.overlays.sessionResults"
+                                 session-results="overlaysCtrl.sessionResults"
+                                 session-name="overlaysCtrl.selectedSessionResultsSessionName"
+                                 config="overlaysCtrl.config"
+                                 custom-config="overlaysCtrl.customConfig"
+                                 entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                 selected-entry-info="overlaysCtrl.overlays.driverInfo.settings.entryInfo"
+                                 schedule="overlaysCtrl.schedule"
+                                 session-info="overlaysCtrl.sessionInfo"
+                                 cars="overlaysCtrl.cars"
+        >
+        </session-results-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.midraceResults.visible" class="session-results-overlay">
+        <session-results-overlay overlay-info="overlaysCtrl.overlays.midraceResults"
+                                 session-results="overlaysCtrl.midraceResults"
+                                 session-name="'RACE'"
+                                 config="overlaysCtrl.config"
+                                 custom-config="overlaysCtrl.customConfig"
+                                 entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                 selected-entry-info="overlaysCtrl.overlays.driverInfo.settings.entryInfo"
+                                 schedule="overlaysCtrl.schedule"
+                                 session-info="overlaysCtrl.sessionInfo"
+                                 cars="overlaysCtrl.cars"
+        >
+        </session-results-overlay>
+    </div>
+    <starting-order-overlay overlay-info="overlaysCtrl.overlays.startingOrder"
+                            config="overlaysCtrl.config"
+                            custom-config="overlaysCtrl.customConfig"
+                            starting-order="overlaysCtrl.startingOrder"
+                            entry-data-field="overlaysCtrl.overlays.entryDataField"
+                            selected-entry-info="overlaysCtrl.overlays.driverInfo.settings.entryInfo"
+                            schedule="overlaysCtrl.schedule"
+                            session-info="overlaysCtrl.sessionInfo"
+                            cars="overlaysCtrl.cars"
+    ></starting-order-overlay>
+    <session-info-overlay overlay-info="overlaysCtrl.overlays.sessionInfo"
+                          session-info="overlaysCtrl.sessionInfo"
+                          standings="overlaysCtrl.drivers"
+                          config="overlaysCtrl.config"
+                          custom-config="overlaysCtrl.customConfig"
+                          replay-transition-overlay="overlaysCtrl.overlays.replayTransition"
+    >
+    </session-info-overlay>
+    <div ng-if="overlaysCtrl.overlays.raceUpdateBox.visible" class="race-update-overlay-container">
+        <race-update-overlay custom-config="overlaysCtrl.customConfig"
+                             session-info="overlaysCtrl.sessionInfo"
+                             standings="overlaysCtrl.drivers"
+                             selected-car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                             driver-name-type-id="overlaysCtrl.overlays.standingsTower.driverNameTypeId"
+        >
+        </race-update-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.standingsTower.visible" class="standings-tower-overlay-container">
+        <standings-tower-overlay overlay-info="overlaysCtrl.overlays.standingsTower"
+                                 drivers="overlaysCtrl.drivers"
+                                 session-info="overlaysCtrl.sessionInfo"
+                                 code80="overlaysCtrl.overlays.code80.visible"
+                                 custom-config="overlaysCtrl.customConfig"
+                                 pit-timers="overlaysCtrl.pitTimers"
+                                 pit-lane-timer-enabled="overlaysCtrl.pitLaneTimerEnabled"
+                                 pit-box-timer-enabled="overlaysCtrl.pitBoxTimerEnabled"
+                                 entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                 starting-order="overlaysCtrl.startingOrder"
+                                 selected-driver="overlaysCtrl.selectedDriver"
+                                 cars="overlaysCtrl.cars"
+        >
+        </standings-tower-overlay>
+    </div>
+    <driver-info-overlay overlay-info="overlaysCtrl.overlays.driverInfo"
+                         selected-driver="overlaysCtrl.selectedDriver"
+                         config="overlaysCtrl.config"
+                         custom-config="overlaysCtrl.customConfig"
+                         session-info="overlaysCtrl.sessionInfo"
+                         standings="overlaysCtrl.standings"
+                         entry-data-field="overlaysCtrl.overlays.entryDataField"
+                         selected-car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                         replay-metrics="overlaysCtrl.replayMetrics"
+                         cars="overlaysCtrl.cars"
+    >
+    </driver-info-overlay>
+    <onboard-driver-box-overlay overlay-info="overlaysCtrl.overlays.onboardDriverBox"
+                                selected-driver="overlaysCtrl.selectedDriver"
+                                config="overlaysCtrl.config"
+                                custom-config="overlaysCtrl.customConfig"
+                                session-info="overlaysCtrl.sessionInfo"
+                                standings="overlaysCtrl.standings"
+                                entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                selected-car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                                cars="overlaysCtrl.cars"
+    >
+    </onboard-driver-box-overlay>
+    <battle-box-overlay  overlay-info="overlaysCtrl.overlays.battleBox"
+                         selected-driver="overlaysCtrl.selectedDriver"
+                         config="overlaysCtrl.config"
+                         custom-config="overlaysCtrl.customConfig"
+                         standings="overlaysCtrl.standings"
+                         speed-unit="overlaysCtrl.speedUnit"
+                         entry-data-field="overlaysCtrl.overlays.entryDataField"
+                         selected-car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                         selected-entry-info="overlaysCtrl.overlays.driverInfo.settings.entryInfo"
+                         cars="overlaysCtrl.cars"
+    >
+    </battle-box-overlay>
+    <div ng-if="overlaysCtrl.overlays.extendedBattleBox.visible"
+         class="extended-battle-box-overlay-container overlay-swipe-container"
+    >
+        <extended-battle-box-overlay overlay-info="overlaysCtrl.overlays.extendedBattleBox"
+                                     selected-driver="overlaysCtrl.selectedDriver"
+                                     config="overlaysCtrl.config"
+                                     custom-config="overlaysCtrl.customConfig"
+                                     standings="overlaysCtrl.drivers"
+                                     session-info="overlaysCtrl.sessionInfo"
+                                     entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                     selected-car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                                     selected-name-type="overlaysCtrl.overlays.standingsTower.showName"
+                                     driver-name-type-id="overlaysCtrl.overlays.standingsTower.driverNameTypeId"
+                                     cars="overlaysCtrl.cars"
+        >
+        </extended-battle-box-overlay>
+        <div class="overlay-swipe"
+             ng-class="overlaysCtrl.getCssCarClassName(overlaysCtrl.selectedDriver.carClass)"
+             ng-style="overlaysCtrl.getSwipeStyle(overlaysCtrl.selectedDriver, 'backgroundColor')"
+        >
+        </div>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.broll.visible" class="broll-overlay-container">
+        <broll-overlay overlay-info="overlaysCtrl.overlays.broll"
+                       config="overlaysCtrl.config"
+                       custom-config="overlaysCtrl.customConfig"
+        >
+        </broll-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.countdown.visible" class="countdown-overlay-container">
+        <countdown-overlay overlay-info="overlaysCtrl.overlays.countdown"
+                           config="overlaysCtrl.config"
+                           custom-config="overlaysCtrl.customConfig"
+        >
+        </countdown-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.qualifyingBox.visible"
+         class="qualifying-box-overlay-container overlay-swipe-container"
+    >
+        <qualifying-box-overlay overlay-info="overlaysCtrl.overlays.qualifyingBox"
+                                selected-driver="overlaysCtrl.selectedDriver"
+                                config="overlaysCtrl.config"
+                                custom-config="overlaysCtrl.customConfig"
+                                session-info="overlaysCtrl.sessionInfo"
+                                standings="overlaysCtrl.standings"
+                                standings-history="overlaysCtrl.standingsHistory"
+                                entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                selected-car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                                selected-entry-info="overlaysCtrl.overlays.driverInfo.settings.entryInfo"
+                                cars="overlaysCtrl.cars"
+        >
+        </qualifying-box-overlay>
+        <div class="overlay-swipe"
+             ng-class="overlaysCtrl.getCssCarClassName(overlaysCtrl.selectedDriver.carClass)"
+             ng-style="overlaysCtrl.getSwipeStyle(overlaysCtrl.selectedDriver, 'backgroundColor')"
+        >
+        </div>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.standingsTicker.visible" class="standings-ticker-overlay-container">
+        <standings-ticker-overlay overlay-info="overlaysCtrl.overlays.standingsTicker"
+                                  drivers="overlaysCtrl.drivers"
+                                  session-info="overlaysCtrl.sessionInfo"
+                                  car-class="overlaysCtrl.overlays.standingsTower.carClass"
+                                  custom-config="overlaysCtrl.customConfig"
+                                  pit-timers="overlaysCtrl.pitTimers"
+                                  pit-lane-timer-enabled="overlaysCtrl.pitLaneTimerEnabled"
+                                  pit-box-timer-enabled="overlaysCtrl.pitBoxTimerEnabled"
+                                  entry-data-field="overlaysCtrl.overlays.entryDataField"
+                                  starting-order="overlaysCtrl.startingOrder"
+                                  selected-name-type="overlaysCtrl.overlays.standingsTower.showName"
+                                  driver-name-type-id="overlaysCtrl.overlays.standingsTower.driverNameTypeId"
+                                  cars="overlaysCtrl.cars"
+        >
+        </standings-ticker-overlay>
+    </div>
+    <replay-transition-overlay overlay-info="overlaysCtrl.overlays.replayTransition"
+                               overlays="overlaysCtrl.overlays"
+                               custom-config="overlaysCtrl.customConfig"
+    >
+    </replay-transition-overlay>
+    <div ng-if="overlaysCtrl.overlays.eventSlide.visible" class="event-slide-overlay-container">
+        <event-slide-overlay overlay-info="overlaysCtrl.overlays.eventSlide"
+                             config="overlaysCtrl.config"
+                             custom-config="overlaysCtrl.customConfig"
+                             session-info="overlaysCtrl.sessionInfo"
+                             schedule="overlaysCtrl.schedule"
+        >
+        </event-slide-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.introSlide.visible" class="intro-slide-overlay-container">
+        <intro-slide-overlay overlay-info="overlaysCtrl.overlays.introSlide"
+                             config="overlaysCtrl.config"
+                             custom-config="overlaysCtrl.customConfig"
+                             schedule="overlaysCtrl.schedule"
+        >
+        </intro-slide-overlay>
+    </div>
+    <div ng-if="overlaysCtrl.overlays.videoSlide.visible" class="video-slide-overlay-container">
+        <video-slide-overlay overlay-info="overlaysCtrl.overlays.videoSlide"
+                             config="overlaysCtrl.config"
+                             custom-config="overlaysCtrl.customConfig"
+        >
+        </video-slide-overlay>
+    </div>
+</div>
+
+<canvas id="canvas" width="{{ overlaysCtrl.canvasWidth }}" height="{{ overlaysCtrl.canvasHeight }}"></canvas>
+</body>
+</html>

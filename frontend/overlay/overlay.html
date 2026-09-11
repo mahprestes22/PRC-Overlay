@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherminator TV Overlay</title>
+    <link rel="stylesheet" href="overlay.css?v=1.1">
+    <link rel="stylesheet" href="wec2025.css?v=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="WEC">
+    <!-- Transparent wrapper for broadcast software -->
+    <div id="overlay-wrapper">
+
+        <!-- Waiting for Server / Game Overlay -->
+        <div id="waiting-server-overlay" class="hidden">
+            <div class="waiting-content">
+                <div class="waiting-spinner"></div>
+                <h2 id="waiting-status-text">WAITING FOR SERVER</h2>
+                <p id="waiting-sub-text">Please Start the Sherminator Race Control PRO</p>
+            </div>
+        </div>
+
+        <!-- Top Left: Session Info & Flags -->
+        <div id="session-info-container" class="overlay-widget hidden">
+            <div class="session-header">
+                <div class="session-time">
+                    <span id="overlay-time">00:00:00</span>
+                </div>
+                <!-- Yellow Sector Flags Container -->
+                <div id="sector-flags-container">
+                    <!-- Dynamic flags (e.g. S1, S2, S3) injected here -->
+                </div>
+            </div>
+            <div class="session-name">
+                <span id="overlay-session-name">SHERMINATOR RACE</span>
+            </div>
+            <div id="overlay-track-container" class="track-info">
+                <span id="overlay-track-name"></span>
+            </div>
+        </div>
+
+        <!-- Center Top: FCY/SC Banner -->
+        <div id="fcy-banner" class="overlay-widget hidden">
+            <div class="fcy-content">
+                <div class="fcy-labels">
+                    <span id="fcy-text">FULL COURSE YELLOW</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Track Map -->
+        <div id="track-map-container" class="overlay-widget hidden">
+            <canvas id="track-map-canvas"></canvas>
+        </div>
+        <!-- Left Side: Standings Tower -->
+        <div id="standings-tower-container" class="overlay-widget hidden">
+            <div id="tower-rows">
+                <!-- Data injected via JS -->
+            </div>
+        </div>
+
+        <!-- WEC 2025 Specialized Tower (Shown only in WEC theme) -->
+        <div id="wec-tower-container" class="overlay-widget">
+            <div class="wec-overlay-container">
+                <div class="wec-top-section">
+                    <div class="wec-brand-header">
+                        <img src="../../Media/logos/torre.png" alt="WEC" class="wec-tower-logo" onerror="this.src='/Media/logos/torre.png'">
+                    </div>
+                    <div class="wec-header">
+                        <div id="wec-timer" class="wec-timer">00:00:00</div>
+                    </div>
+                </div>
+                <div id="wec-leaderboard" class="wec-leaderboard">
+                    <!-- Categories and Rows injected via JS -->
+                </div>
+                <!-- Tower Class Wipe Transition Overlay -->
+                <div id="wec-tower-transition" class="wec-tower-transition hidden">
+                    <div class="wec-tower-trans-bg"></div>
+                    <div class="wec-tower-trans-content">
+                        <div class="wec-tower-trans-ghost-text" id="wec-tower-trans-ghost"></div>
+                        <div class="wec-tower-trans-class-name" id="wec-tower-trans-name">LMGT3</div>
+                    </div>
+                </div>
+                <div class="wec-footer">
+                    <span id="wec-location" class="location">TRACK NAME</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEC 2025/2026 2D Radar Track Map (SVG Vetorial Transparente) -->
+        <div id="wec-track-map-container" class="overlay-widget hidden">
+            <svg id="wec-map-svg" viewBox="0 0 1000 1000">
+                <path id="wec-map-bg-path" class="wec-track-bg-path" d="" stroke-width="34" />
+                <path id="wec-map-fg-path" class="wec-track-fg-path" d="" stroke-width="22" />
+                <path id="wec-map-pit-path" class="wec-track-pit-path" d="" stroke-width="8" />
+                <g id="wec-map-cars-layer"></g>
+                <g id="wec-map-focused-layer"></g>
+            </svg>
+        </div>
+
+
+        <!-- Driver Stats Banner (Official WEC Lower-Third) -->
+        <div id="driver-stats-banner" class="overlay-widget hidden">
+            <div class="dsb-left-col">
+                <div class="dsb-rank">
+                    <span class="dsb-rank-num">--</span><sup class="dsb-rank-suffix">th</sup>
+                </div>
+                <div class="dsb-badge-box">
+                    <div class="dsb-mfr-logo">
+                        <img src="" class="dsb-logo-img" alt="" onerror="this.style.display='none'">
+                    </div>
+                    <div class="dsb-car-num">--</div>
+                </div>
+            </div>
+
+            <div class="dsb-driver-info">
+                <div class="dsb-first-name">FIRST NAME</div>
+                <div class="dsb-last-name">LAST NAME</div>
+                <div class="dsb-team-name">TEAM NAME</div>
+            </div>
+
+            <div class="dsb-photo-container">
+                <img class="dsb-driver-photo" src="" alt="" onerror="this.style.opacity='0'">
+            </div>
+
+            <div class="dsb-stats-section">
+                <div class="dsb-stats-title">DRIVER STATS</div>
+                <div class="dsb-stats-table">
+                    <div class="dsb-stat-row">
+                        <span class="dsb-stat-label">BEST LAP</span>
+                        <span class="dsb-stat-val dsb-best-lap">--:--.---</span>
+                    </div>
+                    <div class="dsb-stat-row">
+                        <span class="dsb-stat-label">LAST LAP</span>
+                        <span class="dsb-stat-val dsb-last-lap">-</span>
+                    </div>
+                    <div class="dsb-stat-row">
+                        <span class="dsb-stat-label">AVERAGE</span>
+                        <span class="dsb-stat-val dsb-avg-lap">--:--.---</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Driver Onboard Telemetry Banner (Official WEC) -->
+        <div id="driver-onboard-banner" class="overlay-widget hidden">
+            <div class="dob-main-container">
+                <!-- Left: Manufacturer Background Box -->
+                <div class="dob-left-box man-ferrari">
+                    <div class="dob-mfr-logo">
+                        <img src="" class="dob-logo-img" alt="" onerror="this.style.display='none'">
+                    </div>
+                    <div class="dob-car-num">--</div>
+                    <div class="dob-photo-container">
+                        <img class="dob-driver-photo" src="" alt="" onerror="this.style.opacity='0'">
+                    </div>
+                </div>
+
+                <!-- Right: Telemetry Box -->
+                <div class="dob-right-box">
+                    <div class="dob-telemetry-col">
+                        <!-- Pedals input bar (Brake Left Red / Throttle Right Green) -->
+                        <div class="dob-pedals-wrapper">
+                            <div class="dob-pedals-bar">
+                                <div class="dob-pedal-half dob-brake-half">
+                                    <div class="dob-pedal-brake" style="width: 0%;"></div>
+                                </div>
+                                <div class="dob-pedal-center-line"></div>
+                                <div class="dob-pedal-half dob-throttle-half">
+                                    <div class="dob-pedal-throttle" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tachometer & RPM Row -->
+                        <div class="dob-rpm-row">
+                            <div class="dob-tacho-ticks">
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick"></div>
+                                <div class="dob-tick red"></div>
+                                <div class="dob-tick red"></div>
+                            </div>
+                            <div class="dob-rpm-text"><span class="dob-rpm-val">0</span> RPM</div>
+                        </div>
+
+                        <!-- Gear Selection Row -->
+                        <div class="dob-gear-row">
+                            <span class="dob-gear-label">GEAR</span>
+                            <div class="dob-gear-list">
+                                <span class="dob-gear-item" data-gear="1">1</span>
+                                <span class="dob-gear-item" data-gear="2">2</span>
+                                <span class="dob-gear-item" data-gear="3">3</span>
+                                <span class="dob-gear-item" data-gear="4">4</span>
+                                <span class="dob-gear-item" data-gear="5">5</span>
+                                <span class="dob-gear-item" data-gear="6">6</span>
+                                <span class="dob-gear-item" data-gear="7">7</span>
+                                <span class="dob-gear-item" data-gear="8">8</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Speed Display Column -->
+                    <div class="dob-speed-col">
+                        <div class="dob-speed-kmh"><span class="dob-kmh-val">0</span><span class="dob-speed-unit">KMH</span></div>
+                        <div class="dob-speed-mph"><span class="dob-mph-val">0</span> MPH</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Sub-tab: Sponsor / Telemetry -->
+            <div class="dob-sub-tab">
+                <div class="dob-sponsor-badge" id="dob-sponsor-slot">
+                    <img id="dob-sponsor-logo" class="dob-sponsor-img" src="" alt="Sponsor" onerror="this.style.display='none'">
+                    <span class="dob-sponsor-default-text">SPONSOR</span>
+                </div>
+                <div class="dob-telemetry-badge">
+                    <span>TELEMETRY</span>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- WEC 2025 Driver Box (Horizontal Bar) -->
+        <div id="wec-driver-box-container" class="overlay-widget hidden">
+            <div class="wec-driver-bar">
+                <div class="wec-db-identity man-bg">
+                    <div class="wec-db-logo"></div>
+                    <div class="wec-db-car-number">--</div>
+                </div>
+                
+                <div class="wec-db-portrait-float">
+                    <img class="wec-db-portrait-img" src="" alt="" onerror="this.style.opacity='0'">
+                </div>
+
+                <div class="wec-db-info-area">
+                    <div class="wec-db-info-top">
+                        <div class="wec-db-class-badge">CLASS</div>
+                    </div>
+                    <div class="wec-db-info-center">
+                        <div class="wec-db-full-name">DRIVER NAME</div>
+                    </div>
+                    <div class="wec-db-info-bottom">
+                        <div class="wec-db-team-name">TEAM NAME</div>
+                    </div>
+                </div>
+
+                <div class="wec-db-car-container">
+                    <img class="driver-box-car-img" src="" alt="Car Image" onerror="this.style.opacity='0'">
+                </div>
+
+                <!-- WEC Per-Wheel Tyres -->
+                <div class="wec-db-tyres">
+                    <div class="wec-tire-dots">
+                        <!-- FL, FR, RL, RR dots injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+            
+
+        <!-- WEC 2025 Driver Box (On-Board) -->
+        <div id="wec-driver-box-container-onboard" class="overlay-widget hidden">
+            
+            <div class="wec-driver-bar">
+                <div class="wec-db-identity man-bg">
+                    <div class="wec-db-logo"></div>
+                    <div class="wec-db-car-number">--</div>
+                </div>
+                
+                <div class="wec-db-portrait-float">
+                    <img class="wec-db-portrait-img" src="" alt="" onerror="this.style.opacity='0'">
+                </div>
+
+                <div class="wec-db-info-area">
+                    <div class="wec-db-info-top">
+                        <div class="wec-db-class-badge">CLASS</div>
+                    </div>
+                    <div class="wec-db-info-center">
+                        <div class="wec-db-full-name">DRIVER NAME</div>
+                    </div>
+                    <div class="wec-db-info-bottom">
+                        <div class="wec-db-team-name">TEAM NAME</div>
+                    </div>
+                </div>
+
+                <div class="wec-db-onboard-indicator hidden">
+                    ONBOARD
+                </div>
+            </div>
+        </div>
+
+        <!-- LAP Info Widget (Standard) -->
+        <div id="lap-info-container" class="overlay-widget hidden">
+            <div class="lap-info-box">
+                <div class="lap-info-row top">
+                    <div class="lap-item">
+                        <span class="label">LAP</span>
+                        <span id="lap-val" class="value">--</span>
+                    </div>
+                    <div class="lap-item">
+                        <span class="label">LAST</span>
+                        <span id="lap-last" class="value">--:--.---</span>
+                    </div>
+                    <div class="lap-item">
+                        <span class="label">BEST</span>
+                        <span id="lap-best" class="value">--:--.---</span>
+                    </div>
+                </div>
+                <div class="lap-info-row center">
+                    <div class="current-lap-wrap">
+                        <span id="lap-current" class="current-value">00:00.0</span>
+                    </div>
+                    <div id="lap-delta-wrap" class="delta-wrap">
+                        <span id="lap-delta" class="delta-value">--.---</span>
+                    </div>
+                </div>
+                <div class="lap-info-row sectors">
+                    <div class="sector-box" id="lap-s1-box">
+                        <span class="s-label">S1</span>
+                        <span id="lap-s1-val" class="s-value">--.---</span>
+                    </div>
+                    <div class="sector-box" id="lap-s2-box">
+                        <span class="s-label">S2</span>
+                        <span id="lap-s2-val" class="s-value">--.---</span>
+                    </div>
+                    <div class="sector-box" id="lap-s3-box">
+                        <span class="s-label">S3</span>
+                        <span id="lap-s3-val" class="s-value">--.---</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEC LAP Info Widget -->
+        <div id="wec-lap-info-container" class="overlay-widget hidden">
+            <div class="wec-lap-box">
+                <div class="wec-lap-header">LAP <span id="wec-lap-val">--</span></div>
+                <div class="wec-lap-main">
+                    <div class="wec-lap-times">
+                        <div class="wec-time-item">BEST: <span id="wec-lap-best">--:--.---</span></div>
+                        <div class="wec-time-item current">CURR: <span id="wec-lap-current">00:00.0</span></div>
+                        <div id="wec-lap-delta-wrap" class="wec-delta">--.---</div>
+                    </div>
+                    <div class="wec-lap-sectors">
+                        <div class="wec-s-box" id="wec-lap-s1-box">S1</div>
+                        <div class="wec-s-box" id="wec-lap-s2-box">S2</div>
+                        <div class="wec-s-box" id="wec-lap-s3-box">S3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- On-Board Telemetry (Hidden by default) -->
+        <div id="onboard-container" class="overlay-widget hidden">
+            <div class="onboard-telemetry-box">
+                <div class="telemetry-header">
+                    <span>TELEMETRY</span>
+                    <div id="onboard-logo" class="onboard-logo"></div>
+                </div>
+
+                <div class="telemetry-main">
+                    <!-- RPM Bar Left -->
+                    <div class="rpm-bar-container" id="rpm-bar">
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                        <div class="rpm-segment"></div>
+                    </div>
+
+                    <div class="telemetry-center">
+                        <div class="speed-kph-container">
+                            <span id="onboard-kph">0</span><span class="unit">KPH</span>
+                        </div>
+
+                        <div class="pedals-container">
+                            <div class="pedal-bar brake">
+                                <div id="pedal-brake-fill" class="pedal-fill"></div>
+                            </div>
+                            <div class="gear-container">
+                                <span id="onboard-gear">N</span>
+                            </div>
+                            <div class="pedal-bar throttle">
+                                <div id="pedal-throttle-fill" class="pedal-fill"></div>
+                            </div>
+                        </div>
+
+                        <div class="speed-mph-container">
+                            <span id="onboard-mph">0</span><span class="unit">MPH</span>
+                        </div>
+                    </div>
+
+                    <!-- Battery Bar Right -->
+                    <div class="battery-bar-container" id="battery-bar">
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                        <div class="battery-segment"></div>
+                    </div>
+                </div>
+
+                <div class="telemetry-footer">
+                    <div class="energy-label" id="onboard-energy-label">VIRTUAL<br>ENERGY TANK</div>
+                    <div class="energy-value"><span id="onboard-energy">0</span><span id="onboard-energy-unit">%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEC Telemetry (Onboard) -->
+        <div id="wec-telemetry-container" class="overlay-widget wec-onboard hidden">
+            <div class="wec-telemet-sidebar">
+                <div class="wec-rpm-dots" id="wec-rpm-segments">
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                    <div class="wec-rpm-dot"></div>
+                </div>
+            </div>
+            <div class="wec-telemet-main">
+                <div class="wec-telemet-header">WEC TELEMETRY</div>
+                <div class="wec-telemet-speed-row">
+                    <span id="wec-telemet-kph" class="wec-telemet-val-main">0</span>
+                    <span class="wec-telemet-unit">KPH</span>
+                </div>
+                <div class="wec-telemet-pedals-row">
+                    <div class="wec-pedal-bar brake">
+                        <div id="wec-telemet-brake" class="wec-pedal-fill"></div>
+                    </div>
+                    <div class="wec-pedal-divider"></div>
+                    <div class="wec-pedal-bar throttle">
+                        <div id="wec-telemet-throttle" class="wec-pedal-fill"></div>
+                    </div>
+                </div>
+                <div class="wec-telemet-gear-wrap">
+                    <div class="wec-telemet-gear-line left"></div>
+                    <span id="wec-telemet-gear" class="wec-telemet-gear-val">N</span>
+                    <div class="wec-telemet-gear-line right"></div>
+                </div>
+                <div class="wec-telemet-aux-row">
+                    <span id="wec-telemet-mph" class="wec-telemet-val-aux">0</span>
+                    <span class="wec-telemet-unit-aux">MPH</span>
+                </div>
+                <div class="wec-energy-footer">
+                    <div class="wec-energy-label" id="wec-energy-label">
+                        <div class="wec-energy-text">VIRTUAL</div>
+                        <div class="wec-energy-text">ENERGY TANK</div>
+                    </div>
+                    <div class="wec-energy-val-wrap">
+                        <span id="wec-telemet-energy" class="wec-energy-pct">0</span>
+                        <span id="wec-telemet-unit" class="wec-energy-unit">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Qualify Info Box (Hidden by default) -->
+        <!-- Multi-Driver Qualify Info Widget (Standard) -->
+        <div id="qualify-list-container" class="qualify-list-container overlay-widget hidden">
+            <!-- Slot 1 -->
+            <div id="qualify-box-1" class="qualify-box-container hidden">
+                <div class="qualify-header">
+                    <div class="qualify-logo"></div>
+                    <div class="qualify-driver-info">
+                        <span class="qualify-driver-name"></span>
+                    </div>
+                </div>
+                <div class="qualify-main">
+                    <div class="qualify-class-best-lap">
+                        <span class="label">CLASS BEST</span>
+                        <span class="qualify-class-best-time time">--:--.---</span>
+                    </div>
+                    <div class="qualify-best-lap">
+                        <span class="label">PERSONAL BEST</span>
+                        <span class="qualify-best-time time">--:--.---</span>
+                    </div>
+                    <div class="qualify-live-lap">
+                        <span class="label">LIVE LAP</span>
+                        <span class="qualify-live-time time">--:--.---</span>
+                    </div>
+                </div>
+                <div class="qualify-sectors">
+                    <div class="sector-item sector-1">
+                        <span class="sector-label">S1</span>
+                        <div class="sector-bar-container">
+                            <div class="sector-bar s1-bar"></div>
+                        </div>
+                        <span class="sector-time s1-time">--.---</span>
+                    </div>
+                    <div class="sector-item sector-2">
+                        <span class="sector-label">S2</span>
+                        <div class="sector-bar-container">
+                            <div class="sector-bar s2-bar"></div>
+                        </div>
+                        <span class="sector-time s2-time">--.---</span>
+                    </div>
+                    <div class="sector-item sector-3">
+                        <span class="sector-label">S3</span>
+                        <div class="sector-bar-container">
+                            <div class="sector-bar s3-bar"></div>
+                        </div>
+                        <span class="sector-time s3-time">--.---</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Slot 2 -->
+            <div id="qualify-box-2" class="qualify-box-container hidden">
+                <div class="qualify-header">
+                    <div class="qualify-logo"></div>
+                    <div class="qualify-driver-info">
+                        <span class="qualify-driver-name"></span>
+                    </div>
+                </div>
+                <!-- Duplicate structure for slot 2 -->
+                <div class="qualify-main">
+                    <div class="qualify-class-best-lap"><span class="label">CLASS BEST</span><span class="qualify-class-best-time time">--:--.---</span></div>
+                    <div class="qualify-best-lap"><span class="label">PERSONAL BEST</span><span class="qualify-best-time time">--:--.---</span></div>
+                    <div class="qualify-live-lap"><span class="label">LIVE LAP</span><span class="qualify-live-time time">--:--.---</span></div>
+                </div>
+                <div class="qualify-sectors">
+                    <div class="sector-item sector-1"><span class="sector-label">S1</span><div class="sector-bar-container"><div class="sector-bar s1-bar"></div></div><span class="sector-time s1-time">--.---</span></div>
+                    <div class="sector-item sector-2"><span class="sector-label">S2</span><div class="sector-bar-container"><div class="sector-bar s2-bar"></div></div><span class="sector-time s2-time">--.---</span></div>
+                    <div class="sector-item sector-3"><span class="sector-label">S3</span><div class="sector-bar-container"><div class="sector-bar s3-bar"></div></div><span class="sector-time s3-time">--.---</span></div>
+                </div>
+            </div>
+            <!-- Slot 3 -->
+            <div id="qualify-box-3" class="qualify-box-container hidden">
+                <div class="qualify-header">
+                    <div class="qualify-logo"></div>
+                    <div class="qualify-driver-info">
+                        <span class="qualify-driver-name"></span>
+                    </div>
+                </div>
+                <!-- Duplicate structure for slot 3 -->
+                <div class="qualify-main">
+                    <div class="qualify-class-best-lap"><span class="label">CLASS BEST</span><span class="qualify-class-best-time time">--:--.---</span></div>
+                    <div class="qualify-best-lap"><span class="label">PERSONAL BEST</span><span class="qualify-best-time time">--:--.---</span></div>
+                    <div class="qualify-live-lap"><span class="label">LIVE LAP</span><span class="qualify-live-time time">--:--.---</span></div>
+                </div>
+                <div class="qualify-sectors">
+                    <div class="sector-item sector-1"><span class="sector-label">S1</span><div class="sector-bar-container"><div class="sector-bar s1-bar"></div></div><span class="sector-time s1-time">--.---</span></div>
+                    <div class="sector-item sector-2"><span class="sector-label">S2</span><div class="sector-bar-container"><div class="sector-bar s2-bar"></div></div><span class="sector-time s2-time">--.---</span></div>
+                    <div class="sector-item sector-3"><span class="sector-label">S3</span><div class="sector-bar-container"><div class="sector-bar s3-bar"></div></div><span class="sector-time s3-time">--.---</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-Driver WEC Qualify Box Widget -->
+        <div id="wec-qualify-list-container" class="wec-qualify-list-container overlay-widget hidden">
+            <!-- Slot 1 -->
+            <div id="wec-qualify-box-1" class="wec-qualify-box-slot wec-qb-cont hidden">
+                <div class="wec-qb-top-row">
+                    <div class="wec-qb-identity">
+                        <div class="wec-qb-logo qb-logo-img"></div>
+                        <div class="wec-qb-number qb-number-text">00</div>
+                    </div>
+                    <div class="wec-qb-driver-name qb-driver-text"></div>
+                </div>
+                <div class="wec-qb-time-row">
+                    <div class="wec-qb-live-time qb-time-text">0:00.0</div>
+                </div>
+                <div class="wec-qb-sectors-row">
+                    <div class="wec-qb-sector qb-s1">
+                        <div class="wec-qb-s-label">S1</div>
+                        <div class="wec-qb-s-bar qb-s1-bar"></div>
+                    </div>
+                    <div class="wec-qb-sector qb-s2">
+                        <div class="wec-qb-s-label">S2</div>
+                        <div class="wec-qb-s-bar qb-s2-bar"></div>
+                    </div>
+                    <div class="wec-qb-sector qb-s3">
+                        <div class="wec-qb-s-label">S3</div>
+                        <div class="wec-qb-s-bar qb-s3-bar"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slot 2 -->
+            <div id="wec-qualify-box-2" class="wec-qualify-box-slot wec-qb-cont hidden">
+                <div class="wec-qb-top-row">
+                    <div class="wec-qb-identity">
+                        <div class="wec-qb-logo qb-logo-img"></div>
+                        <div class="wec-qb-number qb-number-text">00</div>
+                    </div>
+                    <div class="wec-qb-driver-name qb-driver-text"></div>
+                </div>
+                <div class="wec-qb-time-row">
+                    <div class="wec-qb-live-time qb-time-text">0:00.0</div>
+                </div>
+                <div class="wec-qb-sectors-row">
+                    <div class="wec-qb-sector qb-s1">
+                        <div class="wec-qb-s-label">S1</div>
+                        <div class="wec-qb-s-bar qb-s1-bar"></div>
+                    </div>
+                    <div class="wec-qb-sector qb-s2">
+                        <div class="wec-qb-s-label">S2</div>
+                        <div class="wec-qb-s-bar qb-s2-bar"></div>
+                    </div>
+                    <div class="wec-qb-sector qb-s3">
+                        <div class="wec-qb-s-label">S3</div>
+                        <div class="wec-qb-s-bar qb-s3-bar"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slot 3 -->
+            <div id="wec-qualify-box-3" class="wec-qualify-box-slot wec-qb-cont hidden">
+                <div class="wec-qb-top-row">
+                    <div class="wec-qb-identity">
+                        <div class="wec-qb-logo qb-logo-img"></div>
+                        <div class="wec-qb-number qb-number-text">00</div>
+                    </div>
+                    <div class="wec-qb-driver-name qb-driver-text"></div>
+                </div>
+                <div class="wec-qb-time-row">
+                    <div class="wec-qb-live-time qb-time-text">0:00.0</div>
+                </div>
+                <div class="wec-qb-sectors-row">
+                    <div class="wec-qb-sector qb-s1">
+                        <div class="wec-qb-s-label">S1</div>
+                        <div class="wec-qb-s-bar qb-s1-bar"></div>
+                    </div>
+                    <div class="wec-qb-sector qb-s2">
+                        <div class="wec-qb-s-label">S2</div>
+                        <div class="wec-qb-s-bar qb-s2-bar"></div>
+                    </div>
+                    <div class="wec-qb-sector qb-s3">
+                        <div class="wec-qb-s-label">S3</div>
+                        <div class="wec-qb-s-bar qb-s3-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Results Widget (Full Screen) -->
+        <div id="results-container" class="results-screen overlay-widget hidden">
+            <div class="results-header">
+                <div class="results-title-group">
+                    <h1 class="results-main-title">SESSION RESULTS</h1>
+                    <div class="results-subtitle">
+                        <span id="results-session-type">QUALIFYING</span> •
+                        <span id="results-track-name">SPA-FRANCORCHAMPS</span> •
+                        <span id="results-class-name" class="results-class-highlight">HYPERCAR</span>
+                    </div>
+                </div>
+                <div class="results-sponsor-area">
+                    <img id="results-sponsor-logo" src="" alt="" style="max-height: 80px; display: none;">
+                </div>
+            </div>
+
+            <div class="results-body">
+                <div class="results-table-header">
+                    <div class="res-col-pos">POS</div>
+                    <div class="res-col-brand">BRAND</div>
+                    <div class="res-col-driver">DRIVER</div>
+                    <div class="res-col-time">TIME / GAP</div>
+                </div>
+                <div id="results-list" class="results-list">
+                    <!-- 12 Rows injected via JS -->
+                </div>
+                <!-- Final Screen Logo (Hidden by default) -->
+                <div id="results-final-screen" class="hidden">
+                    <img src="../media/logos/transicao.png" alt="Transition Logo">
+                </div>
+            </div>
+
+            <div class="results-footer">
+                <!-- Row 1: Leader Best -->
+                <div class="res-footer-row-top">
+                    <div class="res-leader-info">
+                        LEADER BEST: <span id="results-leader-time" class="res-highlight">--:--.---</span>
+                    </div>
+                </div>
+
+                <div class="res-footer-divider"></div>
+
+                <!-- Row 2: Event Info, Page, Socials -->
+                <div class="res-footer-row-bottom">
+                    <div class="res-footer-left">
+                        <span id="results-event-name">EVENT NAME</span> - <span id="results-event-round">ROUND --</span>
+                    </div>
+                    <div class="res-footer-center">
+                        <div class="res-page-indicator" id="results-page-info">PAGE 1/1</div>
+                    </div>
+                    <div class="res-footer-right">
+                        <div class="res-footer-socials">
+                             <div class="res-social-item">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c.796 0 1.441.645 1.441 1.44s-.645 1.44-1.441 1.44-1.44-.645-1.44-1.44.644-1.44 1.44-1.44z"/></svg>
+                                <span id="results-social-instagram">@SHERMINATOR</span>
+                             </div>
+                             <div class="res-social-item">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505c-.833.224-1.503.904-1.725 1.736C.4 8.057.4 12 .4 12s0 3.943.501 5.814c.222.832.892 1.512 1.725 1.736C5.495 20.055 12 20.055 12 20.055s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136c.501-1.871.501-5.814.501-5.814s0-3.943-.501-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                <span id="results-social-youtube">@SHERMINATOR</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW WEC 2025 SESSION RESULTS SCREEN (Full Screen) -->
+        <div id="wec-results-container" class="overlay-widget wec-results-screen hidden">
+            <div class="wec-results-top-header">
+                <div class="wec-results-session-title" id="wec-results-session-type">RACE CLASSIFICATION</div>
+                <div class="wec-results-sponsor" id="wec-results-sponsor-cont">
+                    <img id="wec-results-sponsor-logo" src="" alt="" style="max-height: 80px; display: none;">
+                </div>
+            </div>
+
+            <div class="wec-results-subtitle-row">
+                <div class="wec-results-class-badge" id="wec-results-class-badge">HYPERCAR</div>
+                <div class="wec-results-event-name" id="wec-results-event-name">EVENT NAME</div>
+            </div>
+
+            <div id="wec-results-list" class="wec-results-list">
+                <!-- 8 Rows injected via JS -->
+            </div>
+
+            <!-- Fixado na base da lista -->
+            <div id="wec-results-fastest-cont"></div>
+
+            <div class="wec-results-footer-bar">
+                <div class="wec-results-footer-left">
+                    <span class="wec-footer-brand">SHERMINATOR RACE CONTROL PRO</span>
+                </div>
+                <div class="wec-results-footer-right">
+                    <div class="wec-footer-social">
+                        <svg class="wec-icon-social" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c.796 0 1.441.645 1.441 1.44s-.645 1.44-1.441 1.44-1.44-.645-1.44-1.44.644-1.44 1.44-1.44z"/></svg>
+                        <span id="wec-results-instagram">@SHERMINATOR</span>
+                    </div>
+                    <div class="wec-footer-social">
+                        <svg class="wec-icon-social" viewBox="0 0 24 24"><path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505c-.833.224-1.503.904-1.725 1.736C.4 8.057.4 12 .4 12s0 3.943.501 5.814c.222.832.892 1.512 1.725 1.736C5.495 20.055 12 20.055 12 20.055s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136c.501-1.871.501-5.814.501-5.814s0-3.943-.501-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        <span id="wec-results-youtube">@SHERMINATOR</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Race Calendar Widget (Full Screen) -->
+        <div id="calendar-container" class="calendar-screen overlay-widget hidden">
+            <div class="calendar-header">
+                <div class="calendar-title-group">
+                    <h1 id="calendar-main-title" class="calendar-main-title">CHAMPIONSHIP NAME</h1>
+                    <div class="calendar-subtitle">
+                        <span>RACE CALENDAR</span>
+                    </div>
+                </div>
+                <div class="calendar-sponsor-area">
+                    <img id="calendar-sponsor-logo" src="" alt="" style="max-height: 80px; display: none;">
+                </div>
+            </div>
+
+            <div class="calendar-body">
+                <div class="calendar-table-header">
+					<div class="cal-col-round">RD</div>
+					<div class="cal-col-flag"></div>
+					<div class="cal-col-event">EVENT</div>
+					<div class="cal-col-date">DATE</div>
+					<div class="cal-col-status"></div>
+				</div>
+                <div id="calendar-list" class="calendar-list">
+                    <!-- Rows injected via JS -->
+                </div>
+            </div>
+
+            <div class="calendar-footer">
+                <div class="res-footer-divider"></div>
+                <div class="res-footer-row-bottom">
+                    <div class="res-footer-left">
+                        <span class="wec-footer-brand">SHERMINATOR RACE CONTROL PRO</span>
+                    </div>
+                    <div class="res-footer-center">
+                        <div class="res-footer-socials">
+                             <div class="res-social-item">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c.796 0 1.441.645 1.441 1.44s-.645 1.44-1.441 1.44-1.44-.645-1.44-1.44.644-1.44 1.44-1.44z"/></svg>
+                                <span id="calendar-social-instagram">@mprestes217</span>
+                             </div>
+                             <div class="res-social-item">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505c-.833.224-1.503.904-1.725 1.736C.4 8.057.4 12 .4 12s0 3.943.501 5.814c.222.832.892 1.512 1.725 1.736C5.495 20.055 12 20.055 12 20.055s7.505 0 9.377-.505a3.017 3.017 0 0 0 2.122-2.136c.501-1.871.501-5.814.501-5.814s0-3.943-.501-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                                <span id="calendar-social-youtube">@Marcelo Prestes</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1V1 Head to Head Widget (Standard) -->
+        <div id="one-vs-one-container" class="overlay-widget hidden">
+            <div class="h2h-content">
+                <!-- Side A (Left Balloon) -->
+                <div class="h2h-side side-a">
+                    <div class="h2h-pos-wrap">
+                        <span id="h2h-pos-a" class="h2h-pos">--</span>
+                        <sup id="h2h-pos-suffix-a">th</sup>
+                    </div>
+                    <div class="h2h-energy-container">
+						<div class="h2h-energy-label" id="h2h-energy-label-a">ENERGY</div> 
+						<div class="h2h-energy-bar-bg">
+							<div id="h2h-energy-bar-a" class="h2h-energy-bar-fill"></div>
+						</div>
+						<div id="h2h-energy-value-a" class="h2h-energy-value">0%</div>
+					</div>
+                    <div id="h2h-logo-a" class="h2h-logo-wrap"></div>
+                    <div id="h2h-name-a" class="h2h-name">DRIVER NAME</div>
+                    <div id="h2h-num-a" class="h2h-number-box">--</div>
+                </div>
+
+                <!-- Middle (Gap & Laps) -->
+                <div class="h2h-middle">
+                    <div class="h2h-gap-label">GAP</div>
+                    <div id="h2h-gap-value" class="h2h-gap-time">+0.000s</div>
+                    <div class="h2h-recent-laps">
+                        <div class="h2h-recent-header">LAP COMPARISON</div>
+                        <div id="h2h-laps-table" class="h2h-laps-table">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side B (Right Balloon) -->
+                <div class="h2h-side side-b">
+                    <div id="h2h-num-b" class="h2h-number-box">--</div>
+                    <div id="h2h-name-b" class="h2h-name">DRIVER NAME</div>
+                    <div id="h2h-logo-b" class="h2h-logo-wrap"></div>
+                    <div class="h2h-energy-container">
+						<div class="h2h-energy-label" id="h2h-energy-label-b">ENERGY</div>
+						<div class="h2h-energy-bar-bg">
+							<div id="h2h-energy-bar-b" class="h2h-energy-bar-fill"></div>
+						</div>
+						<div id="h2h-energy-value-b" class="h2h-energy-value">0%</div>
+					</div>
+                    <div class="h2h-pos-wrap">
+                        <span id="h2h-pos-b" class="h2h-pos">--</span>
+                        <sup id="h2h-pos-suffix-b">th</sup>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEC 2025/2026 Head to Head Battle Widget -->
+        <div id="wec-h2h-container" class="overlay-widget hidden">
+            <div class="wec-h2h-wrapper">
+                <!-- Top Header Bar -->
+                <div class="wec-h2h-top-bar">
+                    <div class="wec-h2h-class-tag" id="wec-h2h-class-badge">HYPERCAR</div>
+                    <div class="wec-h2h-title-tag" id="wec-h2h-battle-title">⚔️ BATTLE FOR POSITION</div>
+                    <div class="wec-h2h-live-tag">LIVE BATTLE</div>
+                </div>
+
+                <div class="wec-h2h-main-body">
+                    <!-- Driver A (Left - Car in front) -->
+                    <div class="wec-h2h-card left" id="wec-h2h-card-a">
+                        <!-- Mfr Color Block with Logo & Number -->
+                        <div class="wec-h2h-id-block man-bg" id="wec-h2h-id-a">
+                            <div class="wec-h2h-mfr-logo" id="wec-h2h-logo-a">
+                                <img src="" alt="" class="wec-h2h-logo-img" onerror="this.style.display='none'">
+                            </div>
+                            <div class="wec-h2h-car-num" id="wec-h2h-num-a">--</div>
+                        </div>
+
+                        <!-- Driver Info Area -->
+                        <div class="wec-h2h-driver-area">
+                            <div class="wec-h2h-rank-badge" id="wec-h2h-pos-a">P1</div>
+                            <div class="wec-h2h-names">
+                                <div class="wec-h2h-full-name" id="wec-h2h-name-a">DRIVER NAME</div>
+                                <div class="wec-h2h-team-sub" id="wec-h2h-team-a">TEAM NAME</div>
+                            </div>
+                            <div class="wec-h2h-meta">
+                                <span class="wec-h2h-tyre-dot" id="wec-h2h-tyre-a">M</span>
+                                <span class="wec-h2h-lap-val" id="wec-h2h-lap-a">--:--.---</span>
+                            </div>
+                        </div>
+
+                        <!-- 3D Pop-Out Photo -->
+                        <div class="wec-h2h-photo-box">
+                            <img src="" class="wec-h2h-photo" id="wec-h2h-photo-a" alt="" onerror="this.style.opacity='0'">
+                        </div>
+                    </div>
+
+                    <!-- Center Delta Pillar -->
+                    <div class="wec-h2h-center-pillar">
+                        <div class="wec-h2h-gap-label">GAP</div>
+                        <div class="wec-h2h-gap-val" id="wec-h2h-gap-val">+0.000s</div>
+                        <div class="wec-h2h-gap-sub" id="wec-h2h-gap-sub">INTERVAL</div>
+                    </div>
+
+                    <!-- Driver B (Right - Chasing car) -->
+                    <div class="wec-h2h-card right" id="wec-h2h-card-b">
+                        <!-- 3D Pop-Out Photo -->
+                        <div class="wec-h2h-photo-box">
+                            <img src="" class="wec-h2h-photo" id="wec-h2h-photo-b" alt="" onerror="this.style.opacity='0'">
+                        </div>
+
+                        <!-- Driver Info Area -->
+                        <div class="wec-h2h-driver-area">
+                            <div class="wec-h2h-rank-badge" id="wec-h2h-pos-b">P2</div>
+                            <div class="wec-h2h-names">
+                                <div class="wec-h2h-full-name" id="wec-h2h-name-b">DRIVER NAME</div>
+                                <div class="wec-h2h-team-sub" id="wec-h2h-team-b">TEAM NAME</div>
+                            </div>
+                            <div class="wec-h2h-meta">
+                                <span class="wec-h2h-tyre-dot" id="wec-h2h-tyre-b">M</span>
+                                <span class="wec-h2h-lap-val" id="wec-h2h-lap-b">--:--.---</span>
+                            </div>
+                        </div>
+
+                        <!-- Mfr Color Block with Logo & Number -->
+                        <div class="wec-h2h-id-block man-bg" id="wec-h2h-id-b">
+                            <div class="wec-h2h-mfr-logo" id="wec-h2h-logo-b">
+                                <img src="" alt="" class="wec-h2h-logo-img" onerror="this.style.display='none'">
+                            </div>
+                            <div class="wec-h2h-car-num" id="wec-h2h-num-b">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+		
+		<div id="calendar-container" class="overlay-widget hidden">
+			<div class="calendar-content">
+				<div class="calendar-header">
+					<div class="calendar-sponsor">
+						<img id="calendar-sponsor-logo" src="" alt="Sponsor">
+					</div>
+					<h1 id="calendar-main-title">CHAMPIONSHIP</h1>
+				</div>
+
+				<div id="calendar-list"></div>
+
+				<div class="calendar-footer">
+					<div class="social-item">
+						<span class="social-icon-ig"></span>
+						<span id="calendar-social-instagram">@instagram</span>
+					</div>
+					<div class="social-item">
+						<span class="social-icon-yt"></span>
+						<span id="calendar-social-youtube">@youtube</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <!-- WEC 2025/2026 Multi-Driver Qualify Tracker Overlay (1 a 3 pilotos) -->
+        <div id="wec-qualify-tracker-container" class="overlay-widget hidden"></div>
+
+        <!-- WEC Starting Grid (Grade de Largada) -->
+        <div id="wec-starting-grid-container" class="overlay-widget hidden">
+            <!-- Header -->
+            <div class="wsg-header">
+                <div class="wsg-header-logo">
+                    <img src="../../Media/logos/torre.png" alt="WEC" onerror="this.style.display='none'">
+                </div>
+                <div class="wsg-header-event" id="wsg-event-name">FIA WORLD ENDURANCE CHAMPIONSHIP</div>
+                <div class="wsg-header-right">
+                    <div class="wsg-sponsor-wrap">
+                        <img src="../../Media/sponsors/sponsor.png" alt="Sponsor" class="wsg-sponsor-img" onerror="this.src='/Media/sponsors/sponsor.png'; this.onerror=function(){this.style.display='none'};">
+                    </div>
+                </div>
+            </div>
+            <!-- Body: Left Panel | Center Spine | Right Panel -->
+            <div class="wsg-body">
+                <!-- Left Driver Panel (grid position ímpar) -->
+                <div class="wsg-side-panel wsg-left" id="wsg-left-panel">
+                    <div class="wsg-top-row">
+                        <div class="wsg-team-name" id="wsg-left-team"></div>
+                        <div class="wsg-mfr-logo-wrap">
+                            <img class="wsg-mfr-logo" id="wsg-left-logo" src="" alt="" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                    <img class="wsg-driver-photo" id="wsg-left-photo" src="" alt="" onerror="this.style.opacity='0'">
+                    <div class="wsg-driver-bottom">
+                        <div class="wsg-driver-pos-num" id="wsg-left-pos"></div>
+                        <div class="wsg-driver-info">
+                            <div class="wsg-driver-name" id="wsg-left-name"></div>
+                            <div class="wsg-driver-class-badge" id="wsg-left-class"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Spine (all grid positions) -->
+                <div class="wsg-center-spine">
+                    <div class="wsg-grid-list" id="wsg-grid-list"></div>
+                    <div class="wsg-row-label" id="wsg-row-label">STARTING GRID ROW 1</div>
+                </div>
+
+                <!-- Right Driver Panel (grid position par) -->
+                <div class="wsg-side-panel wsg-right" id="wsg-right-panel">
+                    <div class="wsg-top-row wsg-top-row-right">
+                        <div class="wsg-mfr-logo-wrap">
+                            <img class="wsg-mfr-logo" id="wsg-right-logo" src="" alt="" onerror="this.style.display='none'">
+                        </div>
+                        <div class="wsg-team-name wsg-team-right" id="wsg-right-team"></div>
+                    </div>
+                    <img class="wsg-driver-photo" id="wsg-right-photo" src="" alt="" onerror="this.style.opacity='0'">
+                    <div class="wsg-driver-bottom wsg-driver-bottom-right">
+                        <div class="wsg-driver-pos-num" id="wsg-right-pos"></div>
+                        <div class="wsg-driver-info wsg-driver-info-right">
+                            <div class="wsg-driver-name" id="wsg-right-name"></div>
+                            <div class="wsg-driver-class-badge" id="wsg-right-class"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer: Redes Sociais -->
+            <div class="wsg-footer">
+                <div class="wsg-footer-social" id="wsg-social-left"></div>
+                <div class="wsg-footer-social" id="wsg-social-center"></div>
+                <div class="wsg-footer-social" id="wsg-social-right"></div>
+            </div>
+        </div>
+
+        <!-- WEC Broadcast REPLAY Banner -->
+        <div id="replay-banner-container" class="overlay-widget hidden">
+            <div class="wec-replay-card">
+                <div class="wec-replay-logo-box">
+                    <img src="../../Media/logos/torre.png" alt="WEC" class="wec-replay-logo" onerror="this.src='/Media/logos/torre.png'">
+                </div>
+                <div class="wec-replay-badge-box">
+                    <span class="wec-replay-text">REPLAY</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEC Fastest Lap by Class Widget -->
+        <div id="wec-fastest-lap-container" class="overlay-widget hidden">
+            <div class="wec-fl-wrapper">
+                <!-- Top Header Bar -->
+                <div class="wec-fl-header">
+                    <div class="wec-fl-header-title">FASTEST LAP</div>
+                    <div class="wec-fl-header-sponsor">
+                        <img src="../../Media/sponsors/sponsor.png" alt="Sponsor" class="wec-fl-sponsor-img"
+                             onerror="if(!this.tJpg){this.tJpg=true;this.src='../../Media/sponsors/sponsor.jpg';}else if(!this.tSvg){this.tSvg=true;this.src='../../Media/sponsors/sponsor.svg';}else if(!this.tRoot){this.tRoot=true;this.src='/Media/sponsors/sponsor.png';}else{this.style.display='none';}">
+                    </div>
+                </div>
+                <!-- Cards container (populated by JS: 1 card per class present) -->
+                <div class="wec-fl-cards" id="wec-fl-cards-list"></div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Full Screen Class Transition Overlay -->
+    <div id="class-transition-overlay" class="hidden">
+        <div class="transition-bg"></div>
+        <img id="transition-bg-logo" src="" alt="Transition Logo" class="transition-bg-logo" onerror="this.style.display='none'">
+        <div class="transition-content">
+            <h1 id="transition-class-name"></h1>
+        </div>
+    </div>
+
+    <script src="js/overlay_bundle.js"></script>
+</body>
+
+</html>

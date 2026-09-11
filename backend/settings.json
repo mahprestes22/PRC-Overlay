@@ -1,0 +1,184 @@
+{
+  "theme": "wec-official",
+  "auto_camera_switch": true,
+  "widgets": {
+    "tower": {
+      "enabled": true,
+      "x": 514,
+      "y": 315,
+      "scale": 1,
+      "visible_cams": [
+        "tv",
+        "trackside",
+        "chase",
+        "bonnet"
+      ]
+    },
+    "driver_banner": {
+      "enabled": true,
+      "x": 30,
+      "y": 920,
+      "scale": 1.0,
+      "visible_cams": [
+        "tv",
+        "trackside",
+        "chase",
+        "bonnet",
+        "cockpit",
+        "nose"
+      ]
+    },
+    "trackmap": {
+      "enabled": true,
+      "x": 1620,
+      "y": 780,
+      "scale": 0.85,
+      "visible_cams": [
+        "tv",
+        "trackside",
+        "chase"
+      ]
+    },
+    "pedals": {
+      "enabled": true,
+      "x": 1560,
+      "y": 880,
+      "scale": 1.0,
+      "visible_cams": [
+        "cockpit",
+        "nose",
+        "onboard_cycle"
+      ]
+    },
+    "battle_box": {
+      "enabled": true,
+      "x": 1400,
+      "y": 100,
+      "scale": 1.0,
+      "visible_cams": [
+        "tv",
+        "trackside",
+        "chase"
+      ]
+    },
+    "flag_status": {
+      "enabled": true,
+      "x": 0,
+      "y": 20,
+      "scale": 1.0,
+      "visible_cams": [
+        "tv",
+        "trackside",
+        "chase",
+        "bonnet",
+        "cockpit",
+        "nose"
+      ]
+    }
+  },
+  "overlay_state": {
+    "standingsTower": true,
+    "trackMap": true,
+    "towerMode": "QUALIFY",
+    "focusedClass": "ALL",
+    "driverStatsBanner": true,
+    "driverOnboardMode": "AUTO",
+    "positions": {
+      "wec-tower-container": {
+        "x": 60,
+        "y": 50
+      },
+      "driver-onboard-banner": {
+        "x": 930,
+        "y": 165
+      },
+      "driver-stats-banner": {
+        "x": 650,
+        "y": 1105
+      },
+      "wec-driver-box-container": {
+        "x": 370,
+        "y": 930
+      },
+      "wec-track-map-container": {
+        "x": 2630,
+        "y": 410
+      },
+      "fcy-banner": {
+        "x": 760,
+        "y": 30
+      },
+      "replay-banner-container": {
+        "x": 160,
+        "y": 80
+      },
+      "wec-h2h-container": {
+        "x": 1060,
+        "y": 1100
+      },
+      "wec-qualify-tracker-container": {
+        "x": 760,
+        "y": 1020
+      },
+      "wec-starting-grid-container": {
+        "x": 480,
+        "y": 100
+      },
+      "wec-fastest-lap-container": {
+        "x": 2190,
+        "y": 20
+      }
+    },
+    "scales": {
+      "wec-tower-container": 1.15,
+      "driver-onboard-banner": 1.2,
+      "driver-stats-banner": 1.1,
+      "wec-h2h-container": 1.1,
+      "wec-track-map-container": 1.05,
+      "replay-banner-container": 1.15,
+      "wec-qualify-tracker-container": 1.2,
+      "wec-starting-grid-container": 1.2,
+      "wec-fastest-lap-container": 1.1
+    },
+    "overlayTheme": "WEC 2025",
+    "h2h_slot_a": 14,
+    "h2h_slot_b": 8,
+    "h2h_active": false,
+    "replay_active": false,
+    "qualifyTrackerSlots": [],
+    "startingGridVisible": false,
+    "startingGridRow": 10,
+    "startingGridClass": "LMGT3",
+    "sgSocialLeft": "",
+    "sgSocialLeftIcon": "instagram",
+    "sgSocialLeftCustom": "",
+    "sgSocialCenter": "",
+    "sgSocialCenterIcon": "youtube",
+    "sgSocialCenterCustom": "",
+    "sgSocialRight": "",
+    "sgSocialRightIcon": "custom",
+    "sgSocialRightCustom": "Media/icons/brasil.png",
+    "map60Fps": true,
+    "championshipName": "TESTE FIA WEC",
+    "fastestLapVisible": true
+  },
+  "championship": {
+    "name": "FIA WORLD ENDURANCE CHAMPIONSHIP",
+    "season": "2026",
+    "rounds": [],
+    "points_system": {
+      "P1": 25,
+      "P2": 18,
+      "P3": 15,
+      "P4": 12,
+      "P5": 10,
+      "P6": 8,
+      "P7": 6,
+      "P8": 4,
+      "P9": 2,
+      "P10": 1,
+      "pole": 1,
+      "fastest_lap": 0
+    }
+  }
+}
