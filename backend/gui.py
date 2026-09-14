@@ -181,6 +181,10 @@ class BroadcastControlApp(ctk.CTk):
             if "overlay_state" not in self.server_engine.settings:
                 self.server_engine.settings["overlay_state"] = {}
             self.server_engine.settings["overlay_state"].update(updates)
+            # Push imediato para todos os clientes conectados (sem precisar do jogo ativo)
+            if hasattr(self.server_engine, "push_overlay_state"):
+                self.server_engine.push_overlay_state()
+
 
     def setup_ui(self):
         # Layout Principal: Sidebar de Navegação + Conteúdo

@@ -177,7 +177,28 @@ class LMUBackendEngine:
             logging.info("[Settings] Configurações salvas com sucesso!")
         except Exception as e:
             logging.error(f"Erro ao salvar settings.json: {e}")
-        
+
+    def push_overlay_state(self):
+        """Faz push imediato do overlay_state atual para todos os clientes WebSocket conectados.
+        Pode ser chamado de qualquer thread (usa asyncio.run_coroutine_threadsafe)."""
+        if not self.connected_clients:
+            return
+        loop = getattr(self, '_event_loop', None)
+        if loop is None or not loop.is_running():
+            return
+        payload = {"overlay_state": self.settings.get("overlay_state", {})}
+        msg = json.dumps(payload)
+        async def _push():
+            dead = set()
+            for ws in list(self.connected_clients):
+                try:
+                    await ws.send(msg)
+                except Exception:
+                    dead.add(ws)
+            self.connected_clients -= dead
+        asyncio.run_coroutine_threadsafe(_push(), loop)
+
+
     async def init_memory(self):
         """Inicializa a conexão nativa com a Memória Compartilhada"""
         logging.info("Conectando à Memória Compartilhada do LMU...")
@@ -1268,6 +1289,14 @@ class LMUBackendEngine:
         """Gerencia mensagens recebidas do frontend (Cliques do narrador e comandos do overlay)"""
         self.connected_clients.add(websocket)
         logging.info("Membro da equipe de transmissão conectou ao WebSocket!")
+        # Envia o overlay_state salvo imediatamente ao conectar (sem depender do jogo estar rodando)
+        try:
+            init_payload = {
+                "overlay_state": self.settings.get("overlay_state", {})
+            }
+            await websocket.send(json.dumps(init_payload))
+        except Exception as e:
+            logging.warning(f"Não foi possível enviar overlay_state_init: {e}")
         try:
             async for message in websocket:
                 try:
@@ -1315,11 +1344,13 @@ class LMUBackendEngine:
 
     async def run(self):
         await self.init_memory()
+        self._event_loop = asyncio.get_event_loop()  # Armazena o loop para push_overlay_state()
         
         logging.info("Servidor de Transmissão rodando na porta 8989...")
         async with serve(self.overlay_handler, "127.0.0.1", 8989):
             # Busca metadados de montadoras UMA VEZ no startup (não poleia, não trava)
             asyncio.ensure_future(self.fetch_vehicle_metadata_once())
+
             await asyncio.gather(
                 self.listen_secret_ws(),
                 self.poll_game_focus(),

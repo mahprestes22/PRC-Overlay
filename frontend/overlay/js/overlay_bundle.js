@@ -763,7 +763,10 @@
                         photoEl.src = url;
                         photoEl.style.opacity = '1';
                     } else {
-                        photoEl.style.opacity = '0';
+                        // Foto genérica quando nenhuma foto específica do piloto for encontrada
+                        photoEl.src = 'http://localhost:6397/start/images/drivers/default.webp';
+                        photoEl.style.opacity = '1';
+                        photoEl.onerror = () => { photoEl.style.opacity = '0'; };
                     }
                 };
 
@@ -774,6 +777,7 @@
                 tryNextPhoto();
             }
         }
+
 
 
 
@@ -913,13 +917,17 @@
                         photoEl.src = url;
                         photoEl.style.opacity = '1';
                     } else {
-                        photoEl.style.opacity = '0';
+                        // Foto genérica quando nenhuma foto específica do piloto for encontrada
+                        photoEl.src = 'http://localhost:6397/start/images/drivers/default.webp';
+                        photoEl.style.opacity = '1';
+                        photoEl.onerror = () => { photoEl.style.opacity = '0'; };
                     }
                 };
                 photoEl.onerror = () => { tryNextPhoto(); };
                 tryNextPhoto();
             }
         }
+
 
         // 3. Telemetria em tempo real
         const telem = focusedCar.telemetry || {};
@@ -1048,7 +1056,10 @@
                     photoEl.src = url;
                     photoEl.style.opacity = '1';
                 } else {
-                    photoEl.style.opacity = '0';
+                    // Foto genérica quando nenhuma foto específica do piloto for encontrada
+                    photoEl.src = 'http://localhost:6397/start/images/drivers/default.webp';
+                    photoEl.style.opacity = '1';
+                    photoEl.onerror = () => { photoEl.style.opacity = '0'; };
                 }
             };
             photoEl.onerror = () => {
@@ -1057,6 +1068,7 @@
             tryNextPhoto();
         }
     }
+
 
     function renderHeadToHead(standings, overlayState) {
         const h2hContainer = document.getElementById('wec-h2h-container');
@@ -1878,12 +1890,16 @@
                 imgEl.src = urls[idx++];
                 imgEl.style.opacity = '1';
             } else {
-                imgEl.style.opacity = '0';
+                // Foto genérica quando nenhuma foto específica do piloto for encontrada
+                imgEl.src = 'http://localhost:6397/start/images/drivers/default.webp';
+                imgEl.style.opacity = '1';
+                imgEl.onerror = () => { imgEl.style.opacity = '0'; };
             }
         };
         imgEl.onerror = tryNext;
         tryNext();
     }
+
 
     function _getSgClassBadgeClass(carClass) {
         if (!carClass) return 'cls-default';
@@ -1970,6 +1986,48 @@
     function renderStartingGrid(standings, overlayState, trackName) {
         const container = document.getElementById('wec-starting-grid-container');
         if (!container) return;
+
+        // Atualiza o footer social SEMPRE (independente de o grid estar visível ou ter dados)
+        // Isso garante que as redes sociais configuradas apareçam assim que o overlay carrega
+        (function _updateSocialFooter() {
+            function _renderSocialItem(el, text, iconType, customPath) {
+                if (!el) return;
+                const cleanText = (text || '').trim();
+                const cleanIcon = String(iconType || '').toLowerCase();
+                const cleanPath = (customPath || '').trim();
+                const signature = `${cleanText}||${cleanIcon}||${cleanPath}`;
+                if (el.dataset.socialSig === signature) return;
+                el.dataset.socialSig = signature;
+                if (!cleanText && (!cleanIcon || cleanIcon === 'none') && !cleanPath) {
+                    el.innerHTML = '';
+                    return;
+                }
+                let iconHtml = '';
+                if (cleanIcon === 'custom' && cleanPath) {
+                    const normPath = cleanPath.replace(/^[\/\\]+/, '');
+                    const initialSrc = (window.location.protocol === 'file:') ? `../../${normPath}` : `/${normPath}`;
+                    iconHtml = `<img src="${initialSrc}" class="wsg-social-icon-img" alt="" onerror="if(!this._tRel){this._tRel=true;this.src='../../${normPath}';}else{this.style.display='none';}">`;
+                } else if (cleanIcon && cleanIcon !== 'none') {
+                    const svgs = {
+                        instagram: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
+                        youtube: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+                        x: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+                        twitter: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+                        twitch: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>',
+                        discord: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>',
+                        tiktok: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-1.01-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+                        facebook: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+                        website: '<svg class="wsg-social-icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0a12 12 0 1 0 12 12A12.013 12.013 0 0 0 12 0zm0 2.07c1.37 0 2.87 2.21 3.5 5.93H8.5c.63-3.72 2.13-5.93 3.5-5.93zm-5.57.98c-1.32.96-2.42 2.3-3.15 3.95H7.3c.48-1.54 1.2-2.9 2.13-3.95zm11.14 0c.93 1.05 1.65 2.41 2.13 3.95h4.02c-.73-1.65-1.83-2.99-3.15-3.95zM2.38 10h5.18a22.25 22.25 0 0 0 0 4H2.38a10.02 10.02 0 0 1 0-4zm6.18 0h6.88c.09.65.14 1.31.14 2s-.05 1.35-.14 2H8.56a18.23 18.23 0 0 1 0-4zm8.94 0h5.18a10.02 10.02 0 0 1 0 4h-5.18a22.25 22.25 0 0 0 0-4zm-2.06 6h4.02c-.73 1.65-1.83 2.99-3.15 3.95-.93-1.05-1.65-2.41-2.13-3.95zm-3.44 5.93c-1.37 0-2.87-2.21-3.5-5.93h7c-.63 3.72-2.13 5.93-3.5 5.93zm-4.5-5.93c-.48 1.54-1.2 2.9-2.13 3.95-1.32-.96-2.42-2.3-3.15-3.95h4.02z"/></svg>'
+                    };
+                    iconHtml = svgs[cleanIcon] || '';
+                }
+                el.innerHTML = `${iconHtml}<span class="wsg-social-text">${cleanText}</span>`;
+            }
+            const ov = overlayState || {};
+            _renderSocialItem(document.getElementById('wsg-social-left'),   ov.sgSocialLeft,   ov.sgSocialLeftIcon,   ov.sgSocialLeftCustom);
+            _renderSocialItem(document.getElementById('wsg-social-center'), ov.sgSocialCenter, ov.sgSocialCenterIcon, ov.sgSocialCenterCustom);
+            _renderSocialItem(document.getElementById('wsg-social-right'),  ov.sgSocialRight,  ov.sgSocialRightIcon,  ov.sgSocialRightCustom);
+        })();
 
         const visible = !!(overlayState && overlayState.startingGridVisible);
         if (!visible || !standings || standings.length === 0) {
@@ -2778,8 +2836,15 @@
                 }
             }
 
+            // Garante que o footer social da grade de largada é sempre atualizado,
+            // mesmo quando não há dados do jogo (ex: overlay carregou antes do jogo iniciar)
+            if (!data.standings || !Array.isArray(data.standings)) {
+                renderStartingGrid(null, overlayState, data.track_name);
+            }
+
             // 4. Renderiza o Radar 2D de Pista (Track Map) se ativo
             renderTrackMap(data, overlayState);
+
 
             // 5. Renderiza o Banner de Replay oficial WEC
             const isReplay = !!(data.is_replay || (data.session_flags && data.session_flags.isReplay) || overlayState.replay_active);

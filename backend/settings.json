@@ -79,7 +79,7 @@
   "overlay_state": {
     "standingsTower": true,
     "trackMap": true,
-    "towerMode": "QUALIFY",
+    "towerMode": "PRACTICE",
     "focusedClass": "ALL",
     "driverStatsBanner": true,
     "driverOnboardMode": "AUTO",
@@ -101,7 +101,7 @@
         "y": 930
       },
       "wec-track-map-container": {
-        "x": 2630,
+        "x": 2530,
         "y": 410
       },
       "fcy-banner": {
@@ -134,21 +134,21 @@
       "driver-onboard-banner": 1.2,
       "driver-stats-banner": 1.1,
       "wec-h2h-container": 1.1,
-      "wec-track-map-container": 1.05,
+      "wec-track-map-container": 1.15,
       "replay-banner-container": 1.15,
       "wec-qualify-tracker-container": 1.2,
       "wec-starting-grid-container": 1.2,
       "wec-fastest-lap-container": 1.1
     },
     "overlayTheme": "WEC 2025",
-    "h2h_slot_a": 14,
-    "h2h_slot_b": 8,
+    "h2h_slot_a": 12,
+    "h2h_slot_b": 0,
     "h2h_active": false,
     "replay_active": false,
     "qualifyTrackerSlots": [],
     "startingGridVisible": false,
     "startingGridRow": 10,
-    "startingGridClass": "LMGT3",
+    "startingGridClass": "Hypercar",
     "sgSocialLeft": "",
     "sgSocialLeftIcon": "instagram",
     "sgSocialLeftCustom": "",
@@ -157,10 +157,10 @@
     "sgSocialCenterCustom": "",
     "sgSocialRight": "",
     "sgSocialRightIcon": "custom",
-    "sgSocialRightCustom": "Media/icons/brasil.png",
+    "sgSocialRightCustom": "Media/icons/bandeira-italy-flag.png",
     "map60Fps": true,
     "championshipName": "TESTE FIA WEC",
-    "fastestLapVisible": true
+    "fastestLapVisible": false
   },
   "championship": {
     "name": "FIA WORLD ENDURANCE CHAMPIONSHIP",
